@@ -1,0 +1,49 @@
+<Project>
+	<PropertyGroup>
+		<Version>1.1.124</Version>
+	</PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<LangVersion>10</LangVersion>
+		<Nullable>enable</Nullable>
+		<Configurations>Debug;Release;Gen</Configurations>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageTags>event-source, pub, sub, pubsub, messaging, reliable, redis, weknow, bnaya</PackageTags>
+		<PackageReleaseNotes>
+		</PackageReleaseNotes>
+		<PackageProjectUrl>https://medium.com/weknow-network</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/weknow-network/Event-Source-Backbone</RepositoryUrl>
+		<RepositoryType>GitHub</RepositoryType>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<IncludeSource>True</IncludeSource>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageReleaseNotes>[BREAKING CHANGES] REDIS segmentation key have different pattern (not compatible with previous pattern)</PackageReleaseNotes>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>$(NoWarn);1591</NoWarn>
+	</PropertyGroup>
+
+
+	<ItemGroup>
+		<Using Include="System.Collections" />
+		<Using Include="System.Collections.Immutable" />
+		<Using Include="System.Collections.Concurrent" />
+		<Using Include="System.Text.Json" />
+	</ItemGroup>
+
+</Project>

@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "properties": {
+      "movieId": { "type": "integer" },
+      "title": { "type": "text" },
+      "genres": { "type": "keyword" }
+    }
+  }
+}

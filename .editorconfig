@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+dotnet_diagnostic.ConstFieldDocumentationHeader.severity = none
+dotnet_diagnostic.MethodDocumentationHeader.severity = none
+dotnet_diagnostic.ClassDocumentationHeader.severity = none
+dotnet_diagnostic.PropertyDocumentationHeader.severity = none
+dotnet_diagnostic.ConstructorDocumentationHeader.severity = none
