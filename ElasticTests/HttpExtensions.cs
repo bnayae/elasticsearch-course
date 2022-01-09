@@ -24,11 +24,14 @@ namespace ElasticTests
         /// <param name="uri">The URI.</param>
         /// <param name="payload">The payload.</param>
         /// <exception cref="System.Exception">POST failed</exception>
-        public static async Task PutTextAsync(this HttpClient http, string uri, string payload)
+        public static async Task<JsonElement> PutTextAsync(this HttpClient http, string uri, string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var res = await http.PutAsync(uri, content);
             if (!res.IsSuccessStatusCode) throw new Exception("POST failed");
+            string json = await res.Content.ReadAsStringAsync();
+            JsonDocument doc = JsonDocument.Parse(json);
+            return doc.RootElement;
         }
         /// <summary>
         /// Posts the text asynchronous.
@@ -37,18 +40,21 @@ namespace ElasticTests
         /// <param name="uri">The URI.</param>
         /// <param name="payload">The payload.</param>
         /// <exception cref="System.Exception">POST failed</exception>
-        public static async Task PostTextAsync(this HttpClient http, string uri, string payload)
+        public static async Task<JsonElement> PostTextAsync(this HttpClient http, string uri, string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var res = await http.PostAsync(uri, content);
             if (!res.IsSuccessStatusCode) throw new Exception("POST failed");
+            string json = await res.Content.ReadAsStringAsync();
+            JsonDocument doc = JsonDocument.Parse(json);
+            return doc.RootElement;
         }
         /// <summary>
         /// Posts the text asynchronous.
         /// </summary>
         /// <param name="http">The HTTP.</param>
         /// <param name="uri">The URI.</param>
-        /// <param name="payload">The payload.</param>
+        /// <returns></returns>
         /// <exception cref="System.Exception">POST failed</exception>
         public static async Task<JsonElement> GetJsonAsync(this HttpClient http, string uri)
         {

@@ -38,7 +38,7 @@ namespace ElasticTests
             PostData idx = PostData.Bytes(buffer);
             try
             {
-                var res = await _low.IndexAsync<StringResponse>(INDEX_NAME, idx, null, _cancellationToken);
+                var res = await _low.IndexAsync<StringResponse>(INDEX_NAME, idx, ctx: _cancellationToken);
                 //Assert.True(res.ApiCall.Success);
                 //Assert.Equal(Result.Created, res.Result);
 
@@ -69,7 +69,12 @@ namespace ElasticTests
 
             try
             {
-                var res = await _low.IndexAsync<StringResponse>(INDEX_NAME, idx, null, _cancellationToken);
+                //var res = await _low.Indices
+                //            .PutAliasAsync<StringResponse>(INDEX_NAME, "idx-low-movies", idx, ctx: _cancellationToken);
+                //var res = await _low.Indices
+                //            .CreateAsync<StringResponse>(INDEX_NAME, idx, ctx: _cancellationToken);
+                
+                var res = await _low.IndexAsync<StringResponse>(INDEX_NAME, idx, ctx: _cancellationToken);
                 //Assert.True(res.ApiCall.Success);
                 //Assert.Equal(Result.Created, res.Result);
 

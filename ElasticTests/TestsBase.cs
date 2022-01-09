@@ -63,6 +63,5 @@ namespace ElasticTests
             Assert.True(genres.TryGetProperty("type", out type));
             Assert.Equal("keyword", type.GetString());
         }
-
     }
 }

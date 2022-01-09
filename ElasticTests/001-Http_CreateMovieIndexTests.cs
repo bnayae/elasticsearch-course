@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,10 +18,12 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class Http_CreateMovieIndexTests: TestsBase
+    public class Http_CreateMovieIndexTests : TestsBase, IDisposable
     {
-        private readonly Regex _whitespaces = new Regex(@"\s*");
-
+        private readonly Regex RGX_WHITESPACES = new Regex(@"\s*");
+        private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
+        private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
+        private bool disposedValue;
         const string INDEX_NAME = "idx-http-movies-v1";
 
         public Http_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
@@ -31,24 +34,94 @@ namespace ElasticTests
         public async Task Http_Movie_Index_Test()
         {
             string idx = File.ReadAllText(Path.Combine("Indices", "idx-movie.json"));
-            idx = _whitespaces.Replace(idx, "");
+            idx = RGX_WHITESPACES.Replace(idx, "");
 
 
-            try
-            {
-                await _http.PutTextAsync(INDEX_NAME, idx);
-                var mapping = await _http.GetJsonAsync($"{INDEX_NAME}/_mapping");
-                Assert.True(mapping.TryGetProperty(INDEX_NAME, out var doc));
-                _outputHelper.WriteLine(mapping.AsIndentString());
-                var docStr = doc.AsIndentString();
-                _outputHelper.WriteLine(docStr);
-                AssertMovieIndex(doc);
-            }
-            finally
-            {
-                var delRes = await _http.DeleteAsync(INDEX_NAME);
-            }
-            
+            await _http.PutTextAsync(INDEX_NAME, idx);
+            var mapping = await _http.GetJsonAsync($"{INDEX_NAME}/_mapping");
+            Assert.True(mapping.TryGetProperty(INDEX_NAME, out var doc));
+            _outputHelper.WriteLine(mapping.AsIndentString());
+            var docStr = doc.AsIndentString();
+            _outputHelper.WriteLine(docStr);
+            AssertMovieIndex(doc);
         }
+
+        [Fact]
+        public async Task Http_BulkInsert_Movies_Test()
+        {
+            await Http_Movie_Index_Test();
+
+            string payload = await PrepareBulkPayload();
+
+            var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
+            _outputHelper.WriteLine(json.AsIndentString());
+        }
+
+        private async Task<string> PrepareBulkPayload()
+        {
+            string path = Path.Combine("Data", "movies.csv");
+            using var reader = new StreamReader(path);
+            await reader.ReadLineAsync();
+
+            var builder = new StringBuilder();
+            while (!reader.EndOfStream)
+            {
+                string? line = await reader.ReadLineAsync();
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                string fline;
+                string tmp = line;
+                do
+                {
+                    fline = COMMA.Replace(tmp, "$1~$3");
+                    if (tmp == fline) break;
+                    tmp = fline;
+                } while (true);
+
+                var lineArray = fline.Split(",");
+                string id = lineArray[0];
+                string genres = lineArray[2];
+                string fullTitle = lineArray[1];
+                string title = RGX_YEAR.Replace(fullTitle, "").Replace("~", ",");
+                var year = RGX_YEAR.Match(fullTitle).Value;
+                if (year.Length > 2)
+                    year = year.Substring(1, year.Length - 2);
+                else
+                    year = "0";
+
+                builder.AppendLine($@"{{ ""create"" : {{ ""_index"" : ""{INDEX_NAME}"", ""_id"" : ""{id}""  }} }}");
+                builder.AppendLine($@"{{ ""id"" : ""{id}"", ""title"" : ""{title}"", ""year"" : ""{year}"",""genres"" : ""{genres}"" }}");
+            }
+
+            return builder.ToString();
+
+        }
+
+        #region Dispose Pattern
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects)
+                }
+
+                disposedValue = true;
+                _http.DeleteAsync(INDEX_NAME).Wait();
+            }
+        }
+
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion // Dispose Pattern
     }
 }

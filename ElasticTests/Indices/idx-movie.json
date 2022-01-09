@@ -3,6 +3,7 @@
     "properties": {
       "movieId": { "type": "integer" },
       "title": { "type": "text" },
+      "year": { "type": "date" },
       "genres": { "type": "keyword" }
     }
   }
