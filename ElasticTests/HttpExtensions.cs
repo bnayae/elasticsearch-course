@@ -51,7 +51,7 @@ namespace ElasticTests
             payload = RGX_WHITESPACES.Replace(payload, "");
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var res = await http.PostAsync(uri, content);
-            if (!res.IsSuccessStatusCode) throw new Exception("POST failed");
+            if (!res.IsSuccessStatusCode) throw new HttpRequestException("POST failed");
             string json = await res.Content.ReadAsStringAsync();
             JsonDocument doc = JsonDocument.Parse(json);
             return doc.RootElement;

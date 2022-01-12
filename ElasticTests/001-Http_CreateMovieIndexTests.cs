@@ -92,7 +92,7 @@ namespace ElasticTests
             await Http_Movie_Index();
 
             JsonElement jsonPayload = await CreateJsonArray();
-            string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id" );
+            string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id");
 
             var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
             _outputHelper.WriteLine(json.AsIndentString());
@@ -133,28 +133,109 @@ namespace ElasticTests
             await Http_Movie_Index();
 
             JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
-            _outputHelper.WriteLine("-----------------------------------");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.Equal(1, version.GetInt32());
             var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
-            _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(data.AsIndentString());
 
 
             JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/1/_update", "Data", "movie.update.json");
-            _outputHelper.WriteLine("-----------------------------------");
             data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
             Assert.True(data.TryGetProperty("_version", out version));
             Assert.Equal(2, version.GetInt32());
             Assert.True(data.TryGetProperty("_source", out var src));
             Assert.True(src.TryGetProperty("title", out var title));
             Assert.Equal("ToyStoryis!BEST!", title.GetString());
+            Assert.True(src.TryGetProperty("year", out var year));
+            Assert.Equal(1995, year.GetInt32());
 
             _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(data.AsIndentString());
         }
 
         #endregion // Http_Update_Movies_Test
+
+        #region Http_Update_WithSeq_Movies_Test
+
+        [Fact]
+        public async Task Http_Update_WithSeq_Movies_Test()
+        {
+            await Http_Movie_Index();
+
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "Data", "movie.json");
+            Assert.True(json.TryGetProperty("_version", out var version));
+            Assert.True(json.TryGetProperty("_seq_no", out var sq));
+            int sqNo = sq.GetInt32();
+            Assert.True(json.TryGetProperty("_primary_term", out var prim));
+            int primTrm = prim.GetInt32();
+            Assert.Equal(1, version.GetInt32());
+            var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/10");
+            _outputHelper.WriteLine(data.AsIndentString());
+
+
+            // primary_term:The primary term increments every time a different shard becomes primary during failover
+            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "Data", "movie.update.json");
+            Assert.True(updJson.TryGetProperty("_seq_no", out sq));
+            sqNo = sq.GetInt32();
+            Assert.True(updJson.TryGetProperty("_primary_term", out prim));
+            primTrm = prim.GetInt32();
+
+            data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/10");
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+
+            Assert.True(data.TryGetProperty("_version", out version));
+            Assert.Equal(2, version.GetInt32());
+            Assert.True(data.TryGetProperty("_source", out var src));
+            Assert.True(src.TryGetProperty("title", out var title));
+            Assert.Equal("ToyStoryis!BEST!", title.GetString());
+            Assert.True(src.TryGetProperty("year", out var year));
+            Assert.Equal(1995, year.GetInt32());
+
+
+            JsonElement upd1Json = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "Data", "movie.update.1.json");
+            data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/10");
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+
+            Assert.True(data.TryGetProperty("_version", out version));
+            Assert.Equal(3, version.GetInt32());
+            Assert.True(data.TryGetProperty("_source", out src));
+            Assert.True(src.TryGetProperty("title", out title));
+            Assert.Equal("ToyStoryis!BEST!", title.GetString());
+            Assert.True(src.TryGetProperty("year", out year));
+            Assert.Equal(2000, year.GetInt32());
+        }
+
+        #endregion // Http_Update_WithSeq_Movies_Test
+
+        #region Http_Update_WithSeq_Movies_ShouldFail_Test
+
+        [Fact]
+        public async Task Http_Update_WithSeq_Movies_ShouldFail_Test()
+        {
+            await Http_Movie_Index();
+
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "Data", "movie.json");
+            Assert.True(json.TryGetProperty("_version", out var version));
+            Assert.True(json.TryGetProperty("_seq_no", out var sq));
+            int sqNo = sq.GetInt32();
+            Assert.True(json.TryGetProperty("_primary_term", out var prim));
+            int primTrm = prim.GetInt32();
+            Assert.Equal(1, version.GetInt32());
+            var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/10");
+            _outputHelper.WriteLine(data.AsIndentString());
+
+
+            await Assert.ThrowsAsync<HttpRequestException>(async () =>
+            {
+                await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo + 1}&if_primary_term={primTrm}", "Data", "movie.update.json");
+            });
+        }
+
+        #endregion // Http_Update_WithSeq_Movies_ShouldFail_Test
+
+        #region Helpers
 
         #region PrepareBulkPayload
 
@@ -275,5 +356,7 @@ namespace ElasticTests
         }
 
         #endregion // Dispose Pattern
+
+        #endregion // Helpers
     }
 }
