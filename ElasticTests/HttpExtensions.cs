@@ -16,6 +16,46 @@ namespace ElasticTests
     /// </summary>
     public static class HttpExtensions
     {
+        private static readonly Regex RGX_WHITESPACES = new Regex(@"\s*");
+
+        /// <summary>
+        /// Posts the text asynchronous.
+        /// </summary>
+        /// <param name="http">The HTTP.</param>
+        /// <param name="uri">The URI.</param>
+        /// <param name="path">The payload.</param>
+        /// <exception cref="System.Exception">POST failed</exception>
+        public static async Task<JsonElement> PutFileAsync(this HttpClient http, string uri, params string[] path)
+        {
+            string p = Path.Combine(path);
+            var payload = await File.ReadAllTextAsync(p);
+            payload = RGX_WHITESPACES.Replace(payload, "");
+            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            var res = await http.PutAsync(uri, content);
+            if (!res.IsSuccessStatusCode) throw new Exception("PUT failed");
+            string json = await res.Content.ReadAsStringAsync();
+            JsonDocument doc = JsonDocument.Parse(json);
+            return doc.RootElement;
+        }
+        /// <summary>
+        /// Posts the text asynchronous.
+        /// </summary>
+        /// <param name="http">The HTTP.</param>
+        /// <param name="uri">The URI.</param>
+        /// <param name="path">The payload.</param>
+        /// <exception cref="System.Exception">POST failed</exception>
+        public static async Task<JsonElement> PostFileAsync(this HttpClient http, string uri, params string[] path)
+        {
+            string p = Path.Combine(path);
+            var payload = await File.ReadAllTextAsync(p);
+            payload = RGX_WHITESPACES.Replace(payload, "");
+            var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            var res = await http.PostAsync(uri, content);
+            if (!res.IsSuccessStatusCode) throw new Exception("POST failed");
+            string json = await res.Content.ReadAsStringAsync();
+            JsonDocument doc = JsonDocument.Parse(json);
+            return doc.RootElement;
+        }
 
         /// <summary>
         /// Posts the text asynchronous.

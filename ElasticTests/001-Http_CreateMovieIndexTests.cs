@@ -20,7 +20,6 @@ namespace ElasticTests
 {
     public class Http_CreateMovieIndexTests : TestsBase, IDisposable
     {
-        private readonly Regex RGX_WHITESPACES = new Regex(@"\s*");
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
         private bool disposedValue;
@@ -33,14 +32,15 @@ namespace ElasticTests
 
         #region Http_Movie_Index_Test
 
+        public async Task Http_Movie_Index()
+        {
+            await _http.PutFileAsync(INDEX_NAME, "Indices", "idx-movie.json");
+        }
+
         [Fact]
         public async Task Http_Movie_Index_Test()
         {
-            string idx = File.ReadAllText(Path.Combine("Indices", "idx-movie.json"));
-            idx = RGX_WHITESPACES.Replace(idx, "");
-
-
-            await _http.PutTextAsync(INDEX_NAME, idx);
+            await Http_Movie_Index();
             var mapping = await _http.GetJsonAsync($"{INDEX_NAME}/_mapping");
             Assert.True(mapping.TryGetProperty(INDEX_NAME, out var doc));
             _outputHelper.WriteLine(mapping.AsIndentString());
@@ -56,23 +56,25 @@ namespace ElasticTests
         [Fact]
         public async Task Http_Insert_Movies_Test()
         {
-            await Http_Movie_Index_Test();
+            await Http_Movie_Index();
 
-            string payload = File.ReadAllText(Path.Combine("Data", "movie.json"));
-            payload = RGX_WHITESPACES.Replace(payload, "");
-
-            var json = await _http.PutTextAsync($"{INDEX_NAME}/_doc/1", payload);
+            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
+            _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(json.AsIndentString());
+
+            var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
         }
 
-        #endregion // Http_BulkInsert_Movies_Test
+        #endregion // Http_Insert_Movies_Test
 
         #region Http_BulkInsert_Movies_Test
 
         [Fact]
         public async Task Http_BulkInsert_Movies_Test()
         {
-            await Http_Movie_Index_Test();
+            await Http_Movie_Index();
 
             string payload = await PrepareBulkPayload();
 
@@ -87,7 +89,7 @@ namespace ElasticTests
         [Fact]
         public async Task Http_BulkInsert_Movies_FromJson_Test()
         {
-            await Http_Movie_Index_Test();
+            await Http_Movie_Index();
 
             JsonElement jsonPayload = await CreateJsonArray();
             string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id" );
@@ -97,6 +99,37 @@ namespace ElasticTests
         }
 
         #endregion // Http_BulkInsert_Movies_FromJson_Test
+
+        #region Http_Update_Movies_Test
+
+        [Fact]
+        public async Task Http_Update_Movies_Test()
+        {
+            await Http_Movie_Index();
+
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
+            _outputHelper.WriteLine("-----------------------------------");
+            Assert.True(json.TryGetProperty("_version", out var version));
+            Assert.Equal(1, version.GetInt32());
+            var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+
+
+            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/1/_update", "Data", "movie.update.json");
+            _outputHelper.WriteLine("-----------------------------------");
+            data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
+            Assert.True(data.TryGetProperty("_version", out version));
+            Assert.Equal(2, version.GetInt32());
+            Assert.True(data.TryGetProperty("_source", out var src));
+            Assert.True(src.TryGetProperty("title", out var title));
+            Assert.Equal("ToyStoryis!BEST!", title.GetString());
+
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+        }
+
+        #endregion // Http_Update_Movies_Test
 
         #region PrepareBulkPayload
 
