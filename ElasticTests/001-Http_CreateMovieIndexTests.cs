@@ -100,6 +100,31 @@ namespace ElasticTests
 
         #endregion // Http_BulkInsert_Movies_FromJson_Test
 
+        #region Http_Delete_Movies_Test
+
+        [Fact]
+        public async Task Http_Delete_Movies_Test()
+        {
+            await Http_Movie_Index();
+
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
+            Assert.True(json.TryGetProperty("_version", out var version));
+            Assert.Equal(1, version.GetInt32());
+            var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+
+
+            JsonElement delRes = await _http.DeleteJsonAsync($"{INDEX_NAME}/_doc/1");
+            Assert.True(delRes.TryGetProperty("_version", out version));
+            Assert.Equal(2, version.GetInt32());
+
+            _outputHelper.WriteLine("-----------------------------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+        }
+
+        #endregion // Http_Delete_Movies_Test
+
         #region Http_Update_Movies_Test
 
         [Fact]

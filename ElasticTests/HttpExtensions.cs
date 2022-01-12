@@ -90,7 +90,7 @@ namespace ElasticTests
             return doc.RootElement;
         }
         /// <summary>
-        /// Posts the text asynchronous.
+        /// Gets the text asynchronous.
         /// </summary>
         /// <param name="http">The HTTP.</param>
         /// <param name="uri">The URI.</param>
@@ -99,6 +99,21 @@ namespace ElasticTests
         public static async Task<JsonElement> GetJsonAsync(this HttpClient http, string uri)
         {
             var res = await http.GetAsync(uri);
+            if (!res.IsSuccessStatusCode) throw new Exception("Get Json failed");
+            string json = await res.Content.ReadAsStringAsync();
+            JsonDocument doc = JsonDocument.Parse(json);
+            return doc.RootElement;
+        }
+        /// <summary>
+        /// Delete the text asynchronous.
+        /// </summary>
+        /// <param name="http">The HTTP.</param>
+        /// <param name="uri">The URI.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">POST failed</exception>
+        public static async Task<JsonElement> DeleteJsonAsync(this HttpClient http, string uri)
+        {
+            var res = await http.DeleteAsync(uri);
             if (!res.IsSuccessStatusCode) throw new Exception("Get Json failed");
             string json = await res.Content.ReadAsStringAsync();
             JsonDocument doc = JsonDocument.Parse(json);
