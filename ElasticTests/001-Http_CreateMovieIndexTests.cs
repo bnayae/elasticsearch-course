@@ -28,7 +28,10 @@ namespace ElasticTests
 
         public Http_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
+            _http.DeleteAsync(INDEX_NAME).Wait();
         }
+
+        #region Http_Movie_Index_Test
 
         [Fact]
         public async Task Http_Movie_Index_Test()
@@ -46,6 +49,26 @@ namespace ElasticTests
             AssertMovieIndex(doc);
         }
 
+        #endregion // Http_Movie_Index_Test
+
+        #region Http_Insert_Movies_Test
+
+        [Fact]
+        public async Task Http_Insert_Movies_Test()
+        {
+            await Http_Movie_Index_Test();
+
+            string payload = File.ReadAllText(Path.Combine("Data", "movie.json"));
+            payload = RGX_WHITESPACES.Replace(payload, "");
+
+            var json = await _http.PutTextAsync($"{INDEX_NAME}/_doc/1", payload);
+            _outputHelper.WriteLine(json.AsIndentString());
+        }
+
+        #endregion // Http_BulkInsert_Movies_Test
+
+        #region Http_BulkInsert_Movies_Test
+
         [Fact]
         public async Task Http_BulkInsert_Movies_Test()
         {
@@ -56,6 +79,26 @@ namespace ElasticTests
             var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
             _outputHelper.WriteLine(json.AsIndentString());
         }
+
+        #endregion // Http_BulkInsert_Movies_Test
+
+        #region Http_BulkInsert_Movies_FromJson_Test
+
+        [Fact]
+        public async Task Http_BulkInsert_Movies_FromJson_Test()
+        {
+            await Http_Movie_Index_Test();
+
+            JsonElement jsonPayload = await CreateJsonArray();
+            string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id" );
+
+            var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
+            _outputHelper.WriteLine(json.AsIndentString());
+        }
+
+        #endregion // Http_BulkInsert_Movies_FromJson_Test
+
+        #region PrepareBulkPayload
 
         private async Task<string> PrepareBulkPayload()
         {
@@ -98,6 +141,57 @@ namespace ElasticTests
 
         }
 
+        #endregion // PrepareBulkPayload
+
+        #region CreateJsonArray
+
+        private async Task<JsonElement> CreateJsonArray()
+        {
+            string path = Path.Combine("Data", "movies.csv");
+            using var reader = new StreamReader(path);
+            await reader.ReadLineAsync();
+
+            var builder = new StringBuilder();
+            builder.Append("[");
+            while (!reader.EndOfStream)
+            {
+                string? line = await reader.ReadLineAsync();
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                string fline;
+                string tmp = line;
+                do
+                {
+                    fline = COMMA.Replace(tmp, "$1~$3");
+                    if (tmp == fline) break;
+                    tmp = fline;
+                } while (true);
+
+                var lineArray = fline.Split(",");
+                string id = lineArray[0];
+                string genres = lineArray[2];
+                string fullTitle = lineArray[1];
+                string title = RGX_YEAR
+                                    .Replace(fullTitle, "")
+                                    .Replace("~", ",");
+                title = title.Replace("\"", "");
+                var year = RGX_YEAR.Match(fullTitle).Value;
+                if (year.Length > 2)
+                    year = year.Substring(1, year.Length - 2);
+                else
+                    year = "0";
+                builder.Append($@"{{ ""id"" : ""{id}"", ""title"" : ""{title}"", ""year"" : ""{year}"",""genres"" : ""{genres}"" }}");
+                builder.Append(",");
+            }
+            builder.Remove(builder.Length - 1, 1);
+            builder.Append("]");
+            var doc = JsonDocument.Parse(builder.ToString());
+            return doc.RootElement;
+        }
+
+        #endregion // CreateJsonArray
+
         #region Dispose Pattern
 
         protected virtual void Dispose(bool disposing)
@@ -110,7 +204,7 @@ namespace ElasticTests
                 }
 
                 disposedValue = true;
-                _http.DeleteAsync(INDEX_NAME).Wait();
+                //_http.DeleteAsync(INDEX_NAME).Wait();
             }
         }
 

@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace ElasticTests
 {
-    public record Movie (int MovieId, string Title, params string[] Genres);
+    public record Movie (int MovieId, string Title, int Year, params string[] Genres);
 }

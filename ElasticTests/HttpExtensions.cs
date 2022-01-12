@@ -28,7 +28,7 @@ namespace ElasticTests
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var res = await http.PutAsync(uri, content);
-            if (!res.IsSuccessStatusCode) throw new Exception("POST failed");
+            if (!res.IsSuccessStatusCode) throw new Exception("PUT failed");
             string json = await res.Content.ReadAsStringAsync();
             JsonDocument doc = JsonDocument.Parse(json);
             return doc.RootElement;

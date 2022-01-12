@@ -33,7 +33,6 @@ namespace ElasticTests
                 Timeout = TimeSpan.FromSeconds(10)
             };
 
-
             var settings = new ConnectionSettings(new Uri(ENDPOINT))
                                                 .DefaultIndex(defaultIndex);
 
