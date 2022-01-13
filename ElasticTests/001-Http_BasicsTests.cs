@@ -20,7 +20,7 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class Http_CreateMovieIndexTests : TestsBase, IDisposable
+    public class Http_BasicsTests : TestsBase, IDisposable
     {
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
@@ -28,7 +28,7 @@ namespace ElasticTests
         const string INDEX_NAME = "idx-http-movies-v1";
         const string SEARCH = $"{INDEX_NAME}/_search";
 
-        public Http_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
+        public Http_BasicsTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
             _http.DeleteAsync(INDEX_NAME).Wait();
         }

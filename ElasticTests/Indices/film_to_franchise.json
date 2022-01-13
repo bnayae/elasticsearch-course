@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "properties": {
+      "film_to_franchise": {
+        "type": "join",
+        "relations": {
+          "franchise": "film"
+        }
+      }
+    }
+  }
+}

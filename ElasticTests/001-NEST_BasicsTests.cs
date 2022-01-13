@@ -19,7 +19,7 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class NEST_CreateMovieIndexTests : TestsBase
+    public class NEST_BasicsTests : TestsBase
     {
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
@@ -28,7 +28,7 @@ namespace ElasticTests
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private CancellationToken _cancellationToken => _cancellationTokenSource.Token;
 
-        public NEST_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
+        public NEST_BasicsTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
             _http.DeleteAsync(INDEX_NAME).Wait();
         }

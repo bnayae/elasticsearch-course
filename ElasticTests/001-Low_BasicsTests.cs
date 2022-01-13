@@ -21,13 +21,13 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class LOW_CreateMovieIndexTests : TestsBase
+    public class LOW_BasicsTests : TestsBase
     {
         private const string INDEX_NAME = "idx-low-movies-v1";
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private CancellationToken _cancellationToken => _cancellationTokenSource.Token;
 
-        public LOW_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
+        public LOW_BasicsTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
             _http.DeleteAsync(INDEX_NAME).Wait();
         }

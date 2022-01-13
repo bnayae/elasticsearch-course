@@ -17,8 +17,6 @@ namespace ElasticTests
     /// </summary>
     public static class HttpExtensions
     {
-        private static readonly Regex RGX_WHITESPACES = new Regex(@"\s*");
-
         /// <summary>
         /// Posts the text asynchronous.
         /// </summary>

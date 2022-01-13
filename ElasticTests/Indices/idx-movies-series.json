@@ -1,0 +1,12 @@
+{
+  "mappings": {
+    "properties": {
+      "film_group": {
+        "type": "join",
+        "relations": {
+          "group": "movie"
+        }
+      }
+    }
+  }
+}
