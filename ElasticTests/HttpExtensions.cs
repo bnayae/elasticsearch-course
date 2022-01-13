@@ -46,8 +46,10 @@ namespace ElasticTests
         public static async Task<JsonElement> PostFileAsync(this HttpClient http, string uri, params string[] path)
         {
             string p = Path.Combine(path);
+
             using var srm = File.OpenRead(p);
             var payload = await JsonDocument.ParseAsync(srm);
+            Console.WriteLine(payload.AsIndentString());
             var res = await http.PostAsJsonAsync(uri, payload.RootElement);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("POST failed");
             var json = await res.Content.ReadFromJsonAsync<JsonElement>();

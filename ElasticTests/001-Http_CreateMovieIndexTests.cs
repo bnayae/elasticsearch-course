@@ -4,6 +4,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
+using Nest;
+
 using Xunit;
 using Xunit.Abstractions;
 
@@ -24,7 +26,7 @@ namespace ElasticTests
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
         private bool disposedValue;
         const string INDEX_NAME = "idx-http-movies-v1";
-        const string SEARCH = $"{INDEX_NAME}/_search" ;
+        const string SEARCH = $"{INDEX_NAME}/_search";
 
         public Http_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
@@ -85,7 +87,8 @@ namespace ElasticTests
 
             string payload = await PrepareBulkPayload();
 
-            JsonElement json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
+            // ?refresh=wait_for: will forcibly refresh your index to make the recently indexed document available for search. see: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html
+            JsonElement json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk?refresh=wait_for", payload);
             return json;
         }
 
@@ -101,7 +104,8 @@ namespace ElasticTests
             JsonElement jsonPayload = await CreateJsonArray();
             string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id");
 
-            var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
+            // ?refresh=wait_for: will forcibly refresh your index to make the recently indexed document available for search. see: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html
+            var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk?refresh=wait_for", payload);
             _outputHelper.WriteLine(json.AsIndentString());
         }
 
@@ -251,9 +255,34 @@ namespace ElasticTests
 
             JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "title-story.json");
             _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
+            Assert.NotEqual(0, total.GetInt32());
         }
 
         #endregion // Http_BulkInsert_Movies_Test
+
+        #region Http_NEST_Query_ByTitle_Test
+
+        [Fact]
+        public async Task Http_NEST_Query_ByTitle_Test()
+        {
+            await Http_BulkInsert_Movies(1000);
+
+            ISearchResponse<MovieX> res = await _nest.SearchAsync<MovieX>(s =>
+                s.Query(q =>
+                    q.Match(m =>
+                        m.Field(f =>
+                            f.Title)
+                        .Query("story")
+                        )
+                    )
+            );
+
+            _outputHelper.WriteLine(res.Documents.Serialize());
+            Assert.NotEqual(0, res.HitsMetadata.Total.Value);
+        }
+
+        #endregion // Http_NEST_Query_ByTitle_Test
 
         #region Helpers
 
@@ -270,7 +299,7 @@ namespace ElasticTests
             int i = 0;
             while (!reader.EndOfStream)
             {
-                if(i++ > limit) break;
+                if (i++ > limit) break;
 
                 string? line = await reader.ReadLineAsync();
                 if (string.IsNullOrEmpty(line))
@@ -287,7 +316,9 @@ namespace ElasticTests
 
                 var lineArray = fline.Split(",");
                 string id = lineArray[0];
-                string genres = lineArray[2];
+                string genresRaw = lineArray[2];
+                var genresArray = genresRaw.Split("|").Select(x => $"\"{x}\"");
+                string genres = $"{string.Join(",", genresArray)}";
                 string fullTitle = lineArray[1];
                 string title = RGX_YEAR.Replace(fullTitle, "").Replace("~", ",");
                 var year = RGX_YEAR.Match(fullTitle).Value;
@@ -297,7 +328,7 @@ namespace ElasticTests
                     year = "0";
 
                 builder.AppendLine($@"{{ ""create"" : {{ ""_index"" : ""{INDEX_NAME}"", ""_id"" : ""{id}""  }} }}");
-                builder.AppendLine($@"{{ ""id"" : ""{id}"", ""title"" : ""{title}"", ""year"" : ""{year}"",""genres"" : ""{genres}"" }}");
+                builder.AppendLine($@"{{ ""id"" : ""{id}"", ""title"" : ""{title}"", ""year"" : ""{year}"",""genres"" : [{genres}] }}");
             }
 
             return builder.ToString();
@@ -308,49 +339,77 @@ namespace ElasticTests
 
         #region CreateJsonArray
 
-        private async Task<JsonElement> CreateJsonArray()
+        private async Task<JsonElement> CreateJsonArray(int limit = 0)
         {
             string path = Path.Combine("Data", "movies.csv");
             using var reader = new StreamReader(path);
             await reader.ReadLineAsync();
 
-            var builder = new StringBuilder();
-            builder.Append("[");
-            while (!reader.EndOfStream)
+            var buffer = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(buffer))
             {
-                string? line = await reader.ReadLineAsync();
-                if (string.IsNullOrEmpty(line))
-                    continue;
-
-                string fline;
-                string tmp = line;
-                do
+                writer.WriteStartArray();
+                limit = limit <= 0 ? int.MaxValue : limit;
+                int i = 0;
+                while (!reader.EndOfStream)
                 {
-                    fline = COMMA.Replace(tmp, "$1~$3");
-                    if (tmp == fline) break;
-                    tmp = fline;
-                } while (true);
+                    if (i++ > limit) break;
 
-                var lineArray = fline.Split(",");
-                string id = lineArray[0];
-                string genres = lineArray[2];
-                string fullTitle = lineArray[1];
-                string title = RGX_YEAR
-                                    .Replace(fullTitle, "")
-                                    .Replace("~", ",");
-                title = title.Replace("\"", "");
-                var year = RGX_YEAR.Match(fullTitle).Value;
-                if (year.Length > 2)
-                    year = year.Substring(1, year.Length - 2);
-                else
-                    year = "0";
-                builder.Append($@"{{ ""id"" : ""{id}"", ""title"" : ""{title}"", ""year"" : ""{year}"",""genres"" : ""{genres}"" }}");
-                builder.Append(",");
+                    string? line = await reader.ReadLineAsync();
+                    if (string.IsNullOrEmpty(line))
+                        continue;
+
+                    string fline;
+                    string tmp = line;
+                    do
+                    {
+                        fline = COMMA.Replace(tmp, "$1~$3");
+                        if (tmp == fline) break;
+                        tmp = fline;
+                    } while (true);
+
+                    var lineArray = fline.Split(",");
+                    string id = lineArray[0];
+                    string genresRaw = lineArray[2];
+                    var genresArray = genresRaw.Split("|"); 
+                    string genres = $"{string.Join(",", genresArray)}";
+                    string fullTitle = lineArray[1];
+                    string title = RGX_YEAR
+                                        .Replace(fullTitle, "");
+                    var year = RGX_YEAR.Match(fullTitle).Value;
+                    if (year.Length > 2)
+                        year = year.Substring(1, year.Length - 2);
+                    else
+                        year = "0";
+
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("id");
+                    writer.WriteNumberValue(int.Parse(id));
+
+                    writer.WritePropertyName("title");
+                    writer.WriteStringValue(title.Trim());
+
+                    writer.WritePropertyName("year");
+                    writer.WriteNumberValue(int.Parse(year));
+
+                    writer.WritePropertyName("genres");
+                    writer.WriteStartArray();
+                    foreach (var g in genresArray)
+                    {
+                        writer.WriteStringValue(g);
+                    }
+                    writer.WriteEndArray();
+
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndArray();
+
+                writer.Flush();
+                var doc = JsonDocument.Parse(buffer.WrittenSpan.ToArray());
+                _outputHelper.WriteLine(doc.AsIndentString());
+                return doc.RootElement;
             }
-            builder.Remove(builder.Length - 1, 1);
-            builder.Append("]");
-            var doc = JsonDocument.Parse(builder.ToString());
-            return doc.RootElement;
         }
 
         #endregion // CreateJsonArray

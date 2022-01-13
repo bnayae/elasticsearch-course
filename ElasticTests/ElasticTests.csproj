@@ -56,7 +56,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NEST" Version="7.16.0" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.16" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.17" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
