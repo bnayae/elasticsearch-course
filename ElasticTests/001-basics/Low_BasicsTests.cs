@@ -21,7 +21,7 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class LOW_BasicsTests : TestsBase
+    public class LOW_BasicsTests : BasicsTestsBase
     {
         private const string INDEX_NAME = "idx-low-movies-v1";
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -37,7 +37,7 @@ namespace ElasticTests
         [Fact]
         public async Task LOW_Movie_File_Index_Test()
         {
-            byte[] buffer = File.ReadAllBytes(Path.Combine("Indices", "idx-movie-props.json"));
+            byte[] buffer = File.ReadAllBytes(Path.Combine(INDICES_BASE_PATH, "idx-movie-props.json"));
             PostData idx = PostData.Bytes(buffer);
             var res = await _low.IndexAsync<StringResponse>(INDEX_NAME, idx, ctx: _cancellationToken);
             _outputHelper.WriteLine(res.Body);

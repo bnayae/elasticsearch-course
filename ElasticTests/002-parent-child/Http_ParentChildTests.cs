@@ -20,7 +20,7 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class Http_ParentChildTests : TestsBase
+    public class Http_ParentChildTests : ParentChildTestsBase
     {
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
@@ -36,7 +36,7 @@ namespace ElasticTests
 
         public async Task Http_MoviesSeries_Index()
         {
-            await _http.PutFileAsync(INDEX_NAME, "Indices", "idx-movies-series.json");
+            await _http.PutFileAsync(INDEX_NAME, INDICES_BASE_PATH, "idx-movies-series.json");
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace ElasticTests
         {
             await Http_MoviesSeries_Index_Test();
 
-            string path = Path.Combine("Data", "movies-series.txt");
+            string path = Path.Combine(DATA_BASE_PATH, "movies-series.txt");
             string payload = await File.ReadAllTextAsync(path);
 
             // ?refresh=wait_for: will forcibly refresh your index to make the recently indexed document available for search. see: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html

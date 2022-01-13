@@ -19,13 +19,18 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class TestsBase
+    public class ParentChildTestsBase
     {
         const string ENDPOINT = "http://localhost:9200/";
+        protected const string BASE_PATH = "002-parent-child";
+        protected static readonly string DATA_BASE_PATH = Path.Combine(BASE_PATH, "data");
+        protected static readonly string INDICES_BASE_PATH = Path.Combine(BASE_PATH, "indices");
+        protected static readonly string QUERY_BASE_PATH = Path.Combine(BASE_PATH, "commands", "query");
+
 
         protected readonly ITestOutputHelper _outputHelper;
 
-        public TestsBase(ITestOutputHelper outputHelper, string defaultIndex)
+        public ParentChildTestsBase(ITestOutputHelper outputHelper, string defaultIndex)
         {
             _http = new HttpClient
             {

@@ -19,7 +19,7 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class NEST_BasicsTests : TestsBase
+    public class NEST_BasicsTests : BasicsTestsBase
     {
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
@@ -117,7 +117,7 @@ namespace ElasticTests
 
         private async Task<Movie[]> CreateMovies()
         {
-            string path = Path.Combine("Data", "movies.csv");
+            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
             using var reader = new StreamReader(path);
             await reader.ReadLineAsync();
 

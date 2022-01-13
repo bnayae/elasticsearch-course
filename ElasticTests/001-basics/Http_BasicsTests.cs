@@ -20,7 +20,7 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class Http_BasicsTests : TestsBase, IDisposable
+    public class Http_BasicsTests : BasicsTestsBase, IDisposable
     {
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
@@ -37,7 +37,7 @@ namespace ElasticTests
 
         public async Task Http_Movie_Index()
         {
-            await _http.PutFileAsync(INDEX_NAME, "Indices", "idx-movie.json");
+            await _http.PutFileAsync(INDEX_NAME, INDICES_BASE_PATH, "idx-movie.json");
         }
 
         [Fact]
@@ -61,7 +61,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "commands", "upsert", "movie.json");
+            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", UPSERT_BASE_PATH, "movie.json");
             _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(json.AsIndentString());
 
@@ -124,7 +124,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "commands", "upsert", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", UPSERT_BASE_PATH, "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.Equal(1, version.GetInt32());
             var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
@@ -149,14 +149,14 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "commands", "upsert", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", UPSERT_BASE_PATH, "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.Equal(1, version.GetInt32());
             var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
             _outputHelper.WriteLine(data.AsIndentString());
 
 
-            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/1/_update", "commands", "upsert", "movie.update.json");
+            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/1/_update", UPSERT_BASE_PATH, "movie.update.json");
             data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
             Assert.True(data.TryGetProperty("_version", out version));
             Assert.Equal(2, version.GetInt32());
@@ -179,7 +179,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "commands", "upsert", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", UPSERT_BASE_PATH, "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.True(json.TryGetProperty("_seq_no", out var sq));
             int sqNo = sq.GetInt32();
@@ -191,7 +191,7 @@ namespace ElasticTests
 
 
             // primary_term:The primary term increments every time a different shard becomes primary during failover
-            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "commands", "upsert", "movie.update.json");
+            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", UPSERT_BASE_PATH, "movie.update.json");
             Assert.True(updJson.TryGetProperty("_seq_no", out sq));
             sqNo = sq.GetInt32();
             Assert.True(updJson.TryGetProperty("_primary_term", out prim));
@@ -210,7 +210,7 @@ namespace ElasticTests
             Assert.Equal(1995, year.GetInt32());
 
 
-            JsonElement upd1Json = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "commands", "upsert", "movie.update.1.json");
+            JsonElement upd1Json = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", UPSERT_BASE_PATH, "movie.update.1.json");
             data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/10");
             _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(data.AsIndentString());
@@ -233,7 +233,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "commands", "upsert", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", UPSERT_BASE_PATH, "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.True(json.TryGetProperty("_seq_no", out var sq));
             int sqNo = sq.GetInt32();
@@ -246,7 +246,7 @@ namespace ElasticTests
 
             await Assert.ThrowsAsync<HttpRequestException>(async () =>
             {
-                await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo + 1}&if_primary_term={primTrm}", "commands", "upsert", "movie.update.json");
+                await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo + 1}&if_primary_term={primTrm}", UPSERT_BASE_PATH, "movie.update.json");
             });
         }
 
@@ -259,7 +259,7 @@ namespace ElasticTests
         {
             await Http_BulkInsert_Movies_FromJson();
 
-            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "title-story.json");
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "title-story.json");
             _outputHelper.WriteLine(json.AsIndentString());
             Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
             Assert.NotEqual(0, total.GetInt32());
@@ -274,7 +274,7 @@ namespace ElasticTests
         {
             await Http_BulkInsert_Movies_FromJson(1000);
 
-            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "genre-Sci-Fi.json");
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "genre-Sci-Fi.json");
             _outputHelper.WriteLine(json.AsIndentString());
             Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
             Assert.NotEqual(0, total.GetInt32());
@@ -289,7 +289,7 @@ namespace ElasticTests
         {
             await Http_BulkInsert_Movies_FromJson(1000);
 
-            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "genre-Sci.json");
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "genre-Sci.json");
             _outputHelper.WriteLine(json.AsIndentString());
             Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
             Assert.Equal(0, total.GetInt32());
@@ -326,7 +326,7 @@ namespace ElasticTests
 
         private async Task<string> PrepareBulkPayload(int limit = 0)
         {
-            string path = Path.Combine("Data", "movies.csv");
+            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
             using var reader = new StreamReader(path);
             await reader.ReadLineAsync();
 
@@ -377,7 +377,7 @@ namespace ElasticTests
 
         private async Task<JsonElement> CreateJsonArray(int limit = 0)
         {
-            string path = Path.Combine("Data", "movies.csv");
+            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
             using var reader = new StreamReader(path);
             await reader.ReadLineAsync();
 

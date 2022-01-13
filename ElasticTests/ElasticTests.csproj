@@ -8,71 +8,71 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="commands\query\genre-Sci-Fi.json" />
-    <None Remove="commands\query\genre-Sci.json" />
-    <None Remove="commands\query\title-story.json" />
-    <None Remove="Data\film_to_franchise.txt" />
-    <None Remove="Data\links.csv" />
-    <None Remove="Data\movie.json" />
-    <None Remove="Data\movie.update.1.json" />
-    <None Remove="Data\movie.update.json" />
-    <None Remove="Data\movies-series.txt" />
-    <None Remove="Data\movies.csv" />
-    <None Remove="Data\ratings.csv" />
-    <None Remove="Data\tags.csv" />
-    <None Remove="Indices\film_to_franchise.json" />
-    <None Remove="Indices\idx-movie-props.json" />
-    <None Remove="Indices\idx-movie.json" />
-    <None Remove="Indices\idx-movies-series.json" />
+    <None Remove="001-basics\commands\query\genre-Sci-Fi.json" />
+    <None Remove="001-basics\commands\query\genre-Sci.json" />
+    <None Remove="001-basics\commands\query\title-story.json" />
+    <None Remove="001-basics\data\links.csv" />
+    <None Remove="001-basics\data\movie.json" />
+    <None Remove="001-basics\data\movie.update.1.json" />
+    <None Remove="001-basics\data\movie.update.json" />
+    <None Remove="001-basics\data\movies.csv" />
+    <None Remove="001-basics\data\ratings.csv" />
+    <None Remove="001-basics\data\tags.csv" />
+    <None Remove="001-basics\indices\idx-movie-props.json" />
+    <None Remove="001-basics\indices\idx-movie.json" />
+    <None Remove="002-parent-child\data\film_to_franchise.txt" />
+    <None Remove="002-parent-child\data\movies-series.txt" />
+    <None Remove="002-parent-child\indices\film_to_franchise.json" />
+    <None Remove="002-parent-child\indices\idx-movies-series.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="commands\query\genre-Sci-Fi.json">
+    <Content Include="001-basics\commands\query\genre-Sci-Fi.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="commands\query\genre-Sci.json">
+    <Content Include="001-basics\commands\query\genre-Sci.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="commands\query\title-story.json">
+    <Content Include="001-basics\commands\query\title-story.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\film_to_franchise.txt">
+    <Content Include="001-basics\data\links.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\links.csv">
+    <Content Include="001-basics\commands\upsert\movie.update.1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="commands\upsert\movie.update.1.json">
+    <Content Include="001-basics\commands\upsert\movie.update.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="commands\upsert\movie.update.json">
+    <Content Include="001-basics\commands\upsert\movie.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="commands\upsert\movie.json">
+    <Content Include="001-basics\data\movies.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\movies-series.txt">
+    <Content Include="001-basics\data\ratings.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\movies.csv">
+    <Content Include="001-basics\data\tags.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\ratings.csv">
+    <Content Include="001-basics\indices\idx-movie-props.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\tags.csv">
+    <Content Include="001-basics\indices\idx-movie.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Indices\film_to_franchise.json">
+    <Content Include="002-parent-child\data\film_to_franchise.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Indices\idx-movies-series.json">
+    <Content Include="002-parent-child\data\movies-series.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Indices\idx-movie-props.json">
+    <Content Include="002-parent-child\indices\film_to_franchise.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Indices\idx-movie.json">
+    <Content Include="002-parent-child\indices\idx-movies-series.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -90,6 +90,11 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="002-parent-child\commands\query\" />
+    <Folder Include="002-parent-child\commands\upsert\" />
   </ItemGroup>
 
 </Project>
