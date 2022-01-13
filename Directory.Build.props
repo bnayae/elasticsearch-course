@@ -38,12 +38,13 @@
 		<NoWarn>$(NoWarn);1591</NoWarn>
 	</PropertyGroup>
 
-
 	<ItemGroup>
 		<Using Include="System.Collections" />
 		<Using Include="System.Collections.Immutable" />
 		<Using Include="System.Collections.Concurrent" />
 		<Using Include="System.Text.Json" />
+		<Using Include="System.Net.Http" />
+		<Using Include="System.Net.Http.Json" />
 	</ItemGroup>
 
 </Project>

@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="commands\query\title-story.json" />
     <None Remove="Data\links.csv" />
     <None Remove="Data\movie.json" />
     <None Remove="Data\movie.update.1.json" />
@@ -20,16 +21,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="commands\query\title-story.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Data\links.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\movie.update.1.json">
+    <Content Include="commands\upsert\movie.update.1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\movie.update.json">
+    <Content Include="commands\upsert\movie.update.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Data\movie.json">
+    <Content Include="commands\upsert\movie.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Data\movies.csv">

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Xunit;
 using Xunit.Abstractions;
+using System.Net.Http.Json;
 
 // Credit: https://www.udemy.com/course/elasticsearch-7-and-elastic-stack/learn/lecture/14728774
 
@@ -28,14 +29,12 @@ namespace ElasticTests
         public static async Task<JsonElement> PutFileAsync(this HttpClient http, string uri, params string[] path)
         {
             string p = Path.Combine(path);
-            var payload = await File.ReadAllTextAsync(p);
-            payload = RGX_WHITESPACES.Replace(payload, "");
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            var res = await http.PutAsync(uri, content);
-            if (!res.IsSuccessStatusCode) throw new Exception("PUT failed");
-            string json = await res.Content.ReadAsStringAsync();
-            JsonDocument doc = JsonDocument.Parse(json);
-            return doc.RootElement;
+            using var srm = File.OpenRead(p);
+            var payload = await JsonDocument.ParseAsync(srm);
+            var res = await http.PutAsJsonAsync(uri, payload.RootElement);
+            if (!res.IsSuccessStatusCode) throw new HttpRequestException("PUT failed");
+            var json = await res.Content.ReadFromJsonAsync<JsonElement>();
+            return json;
         }
         /// <summary>
         /// Posts the text asynchronous.
@@ -47,14 +46,12 @@ namespace ElasticTests
         public static async Task<JsonElement> PostFileAsync(this HttpClient http, string uri, params string[] path)
         {
             string p = Path.Combine(path);
-            var payload = await File.ReadAllTextAsync(p);
-            payload = RGX_WHITESPACES.Replace(payload, "");
-            var content = new StringContent(payload, Encoding.UTF8, "application/json");
-            var res = await http.PostAsync(uri, content);
+            using var srm = File.OpenRead(p);
+            var payload = await JsonDocument.ParseAsync(srm);
+            var res = await http.PostAsJsonAsync(uri, payload.RootElement);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("POST failed");
-            string json = await res.Content.ReadAsStringAsync();
-            JsonDocument doc = JsonDocument.Parse(json);
-            return doc.RootElement;
+            var json = await res.Content.ReadFromJsonAsync<JsonElement>();
+            return json;
         }
 
         /// <summary>
@@ -68,11 +65,11 @@ namespace ElasticTests
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var res = await http.PutAsync(uri, content);
-            if (!res.IsSuccessStatusCode) throw new Exception("PUT failed");
-            string json = await res.Content.ReadAsStringAsync();
-            JsonDocument doc = JsonDocument.Parse(json);
-            return doc.RootElement;
+            if (!res.IsSuccessStatusCode) throw new HttpRequestException("PUT failed");
+            var json = await res.Content.ReadFromJsonAsync<JsonElement>();
+            return json;
         }
+
         /// <summary>
         /// Posts the text asynchronous.
         /// </summary>
@@ -84,7 +81,7 @@ namespace ElasticTests
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
             var res = await http.PostAsync(uri, content);
-            if (!res.IsSuccessStatusCode) throw new Exception("POST failed");
+            if (!res.IsSuccessStatusCode) throw new HttpRequestException("POST failed");
             string json = await res.Content.ReadAsStringAsync();
             JsonDocument doc = JsonDocument.Parse(json);
             return doc.RootElement;
@@ -98,11 +95,8 @@ namespace ElasticTests
         /// <exception cref="System.Exception">POST failed</exception>
         public static async Task<JsonElement> GetJsonAsync(this HttpClient http, string uri)
         {
-            var res = await http.GetAsync(uri);
-            if (!res.IsSuccessStatusCode) throw new Exception("Get Json failed");
-            string json = await res.Content.ReadAsStringAsync();
-            JsonDocument doc = JsonDocument.Parse(json);
-            return doc.RootElement;
+            var res = await http.GetFromJsonAsync<JsonElement>(uri);
+            return res;
         }
         /// <summary>
         /// Delete the text asynchronous.
@@ -114,10 +108,9 @@ namespace ElasticTests
         public static async Task<JsonElement> DeleteJsonAsync(this HttpClient http, string uri)
         {
             var res = await http.DeleteAsync(uri);
-            if (!res.IsSuccessStatusCode) throw new Exception("Get Json failed");
-            string json = await res.Content.ReadAsStringAsync();
-            JsonDocument doc = JsonDocument.Parse(json);
-            return doc.RootElement;
+            if (!res.IsSuccessStatusCode) throw new HttpRequestException("Get Json failed");
+            var json = await res.Content.ReadFromJsonAsync<JsonElement>();
+            return json;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace ElasticTests
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
         private bool disposedValue;
         const string INDEX_NAME = "idx-http-movies-v1";
+        const string SEARCH = $"{INDEX_NAME}/_search" ;
 
         public Http_CreateMovieIndexTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
@@ -58,7 +59,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
+            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "commands", "upsert", "movie.json");
             _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(json.AsIndentString());
 
@@ -74,12 +75,18 @@ namespace ElasticTests
         [Fact]
         public async Task Http_BulkInsert_Movies_Test()
         {
+            JsonElement json = await Http_BulkInsert_Movies();
+            _outputHelper.WriteLine(json.AsIndentString());
+        }
+
+        public async Task<JsonElement> Http_BulkInsert_Movies(int limit = 0)
+        {
             await Http_Movie_Index();
 
             string payload = await PrepareBulkPayload();
 
-            var json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
-            _outputHelper.WriteLine(json.AsIndentString());
+            JsonElement json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk", payload);
+            return json;
         }
 
         #endregion // Http_BulkInsert_Movies_Test
@@ -107,7 +114,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "commands", "upsert", "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.Equal(1, version.GetInt32());
             var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
@@ -132,20 +139,20 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "Data", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1", "commands", "upsert", "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.Equal(1, version.GetInt32());
             var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
             _outputHelper.WriteLine(data.AsIndentString());
 
 
-            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/1/_update", "Data", "movie.update.json");
+            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/1/_update", "commands", "upsert", "movie.update.json");
             data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
             Assert.True(data.TryGetProperty("_version", out version));
             Assert.Equal(2, version.GetInt32());
             Assert.True(data.TryGetProperty("_source", out var src));
             Assert.True(src.TryGetProperty("title", out var title));
-            Assert.Equal("ToyStoryis!BEST!", title.GetString());
+            Assert.Equal("Toy Story is !BEST!", title.GetString());
             Assert.True(src.TryGetProperty("year", out var year));
             Assert.Equal(1995, year.GetInt32());
 
@@ -162,7 +169,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "Data", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "commands", "upsert", "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.True(json.TryGetProperty("_seq_no", out var sq));
             int sqNo = sq.GetInt32();
@@ -174,7 +181,7 @@ namespace ElasticTests
 
 
             // primary_term:The primary term increments every time a different shard becomes primary during failover
-            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "Data", "movie.update.json");
+            JsonElement updJson = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "commands", "upsert", "movie.update.json");
             Assert.True(updJson.TryGetProperty("_seq_no", out sq));
             sqNo = sq.GetInt32();
             Assert.True(updJson.TryGetProperty("_primary_term", out prim));
@@ -188,12 +195,12 @@ namespace ElasticTests
             Assert.Equal(2, version.GetInt32());
             Assert.True(data.TryGetProperty("_source", out var src));
             Assert.True(src.TryGetProperty("title", out var title));
-            Assert.Equal("ToyStoryis!BEST!", title.GetString());
+            Assert.Equal("Toy Story is !BEST!", title.GetString());
             Assert.True(src.TryGetProperty("year", out var year));
             Assert.Equal(1995, year.GetInt32());
 
 
-            JsonElement upd1Json = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "Data", "movie.update.1.json");
+            JsonElement upd1Json = await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo}&if_primary_term={primTrm}", "commands", "upsert", "movie.update.1.json");
             data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/10");
             _outputHelper.WriteLine("-----------------------------------");
             _outputHelper.WriteLine(data.AsIndentString());
@@ -202,7 +209,7 @@ namespace ElasticTests
             Assert.Equal(3, version.GetInt32());
             Assert.True(data.TryGetProperty("_source", out src));
             Assert.True(src.TryGetProperty("title", out title));
-            Assert.Equal("ToyStoryis!BEST!", title.GetString());
+            Assert.Equal("Toy Story is !BEST!", title.GetString());
             Assert.True(src.TryGetProperty("year", out year));
             Assert.Equal(2000, year.GetInt32());
         }
@@ -216,7 +223,7 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "Data", "movie.json");
+            JsonElement json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/10", "commands", "upsert", "movie.json");
             Assert.True(json.TryGetProperty("_version", out var version));
             Assert.True(json.TryGetProperty("_seq_no", out var sq));
             int sqNo = sq.GetInt32();
@@ -229,25 +236,42 @@ namespace ElasticTests
 
             await Assert.ThrowsAsync<HttpRequestException>(async () =>
             {
-                await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo + 1}&if_primary_term={primTrm}", "Data", "movie.update.json");
+                await _http.PostFileAsync($"{INDEX_NAME}/_doc/10/_update?if_seq_no={sqNo + 1}&if_primary_term={primTrm}", "commands", "upsert", "movie.update.json");
             });
         }
 
         #endregion // Http_Update_WithSeq_Movies_ShouldFail_Test
 
+        #region Http_Query_ByTitle_Test
+
+        [Fact]
+        public async Task Http_Query_ByTitle_Test()
+        {
+            await Http_BulkInsert_Movies(1000);
+
+            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "title-story.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+        }
+
+        #endregion // Http_BulkInsert_Movies_Test
+
         #region Helpers
 
         #region PrepareBulkPayload
 
-        private async Task<string> PrepareBulkPayload()
+        private async Task<string> PrepareBulkPayload(int limit = 0)
         {
             string path = Path.Combine("Data", "movies.csv");
             using var reader = new StreamReader(path);
             await reader.ReadLineAsync();
 
             var builder = new StringBuilder();
+            limit = limit <= 0 ? int.MaxValue : limit;
+            int i = 0;
             while (!reader.EndOfStream)
             {
+                if(i++ > limit) break;
+
                 string? line = await reader.ReadLineAsync();
                 if (string.IsNullOrEmpty(line))
                     continue;
