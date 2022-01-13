@@ -1,7 +1,7 @@
 {
 	"query": {
 		"match": {
-			"genres": "Animation"
+			"genres": "Sci"
 		}
 	},
 	"size": 5,

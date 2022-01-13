@@ -252,10 +252,10 @@ namespace ElasticTests
 
         #endregion // Http_Update_WithSeq_Movies_ShouldFail_Test
 
-        #region Http_Query_ByTitle_Test
+        #region Http_Query_ByFullText_Test
 
         [Fact]
-        public async Task Http_Query_ByTitle_Test()
+        public async Task Http_Query_ByFullText_Test()
         {
             await Http_BulkInsert_Movies_FromJson();
 
@@ -265,22 +265,37 @@ namespace ElasticTests
             Assert.NotEqual(0, total.GetInt32());
         }
 
-        #endregion // Http_Query_ByTitle_Test
+        #endregion // Http_Query_ByFullText_Test
 
-        #region Http_Query_ByGenres_Test
+        #region Http_Query_ByKeyword_Test
 
         [Fact]
-        public async Task Http_Query_ByGenres_Test()
+        public async Task Http_Query_ByKeyword_Test()
         {
             await Http_BulkInsert_Movies_FromJson(1000);
 
-            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "genre-animation.json");
+            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "genre-Sci-Fi.json");
             _outputHelper.WriteLine(json.AsIndentString());
             Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
             Assert.NotEqual(0, total.GetInt32());
         }
 
-        #endregion // Http_Query_ByGenres_Test
+        #endregion // Http_Query_ByKeyword_Test
+
+        #region Http_Query_ByKeyword_NotMutch_Test
+
+        [Fact]
+        public async Task Http_Query_ByKeyword_NotMutch_Test()
+        {
+            await Http_BulkInsert_Movies_FromJson(1000);
+
+            JsonElement json = await _http.PostFileAsync(SEARCH, "commands", "query", "genre-Sci.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
+            Assert.Equal(0, total.GetInt32());
+        }
+
+        #endregion // Http_Query_ByKeyword_NotMutch_Test
 
         #region Http_NEST_Query_ByTitle_Test
 

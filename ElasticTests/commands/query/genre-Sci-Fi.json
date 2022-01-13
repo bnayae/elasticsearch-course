@@ -1,0 +1,10 @@
+{
+	"query": {
+		"match": {
+			"genres": "Sci-Fi"
+		}
+	},
+	"size": 5,
+	"from": 0,
+	"sort": []
+}
