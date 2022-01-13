@@ -1,0 +1,10 @@
+{
+	"query": {
+		"match": {
+			"genres": "Animation"
+		}
+	},
+	"size": 5,
+	"from": 0,
+	"sort": []
+}

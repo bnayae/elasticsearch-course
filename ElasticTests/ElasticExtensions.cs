@@ -24,10 +24,7 @@ namespace ElasticTests
             {
                 if (!element.TryGetProperty(idProp, out var id)) throw new KeyNotFoundException(idProp);
                 builder.AppendLine($@"{{ ""create"" : {{ ""_index"" : ""{indexName}"", ""_id"" : ""{id}""  }} }}");
-                builder.Append("{");
-                var props = element.EnumerateObject().Select(p => $"\"{p.Name}\" : \"{p.Value.AsString()}\"");
-                builder.Append(String.Join(", ", props));
-                builder.AppendLine("}");
+                builder.AppendLine(element.AsString());
             }
         }
 

@@ -1,7 +1,10 @@
 {
-	"query": {
-		"match": {
-			"title": "story"
-		}
-	}
+  "query": {
+    "match": {
+      "title": "story"
+    }
+  },
+  "size": 5,
+  "from": 0,
+  "sort": []
 }
