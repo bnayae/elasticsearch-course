@@ -1,0 +1,15 @@
+{
+  "query": {
+    "has_parent": {
+      "parent_type": "franchise",
+      "query": {
+        "match": {
+          "title": "Star Wars"
+        }
+      }
+    }
+  },
+  "size": 5,
+  "from": 0,
+  "sort": []
+}

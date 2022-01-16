@@ -83,5 +83,36 @@ namespace ElasticTests
         #endregion // Http_BulkInsert_MoviesSeries_Test
 
 
+        #region Http_Query_ByParent_Test
+
+        [Fact]
+        public async Task Http_Query_ByParent_Test()
+        {
+            await Http_BulkInsert_MoviesSeries();
+
+            // find all children associated with a parent
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "has-parent-franchise-by-title.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
+            Assert.NotEqual(0, total.GetInt32());
+        }
+
+        #endregion // Http_Query_ByParent_Test
+
+        #region Http_Query_ByChild_Test
+
+        [Fact]
+        public async Task Http_Query_ByChild_Test()
+        {
+            await Http_BulkInsert_MoviesSeries();
+
+            // find all children associated with a parent
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "has-child-film-by-title.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
+            Assert.NotEqual(0, total.GetInt32());
+        }
+
+        #endregion // Http_Query_ByChild_Test
     }
 }

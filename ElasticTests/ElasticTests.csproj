@@ -20,6 +20,10 @@
     <None Remove="001-basics\data\tags.csv" />
     <None Remove="001-basics\indices\idx-movie-props.json" />
     <None Remove="001-basics\indices\idx-movie.json" />
+    <None Remove="002-parent-child\commands\query\has-child-film-by-title.json" />
+    <None Remove="002-parent-child\commands\query\has-child-movie-by-title.json" />
+    <None Remove="002-parent-child\commands\query\has-parent-franchise-by-title.json" />
+    <None Remove="002-parent-child\commands\query\has-parent-group-by-title.json" />
     <None Remove="002-parent-child\data\film_to_franchise.txt" />
     <None Remove="002-parent-child\data\movies-series.txt" />
     <None Remove="002-parent-child\indices\film_to_franchise.json" />
@@ -63,6 +67,18 @@
     <Content Include="001-basics\indices\idx-movie.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="002-parent-child\commands\query\has-child-film-by-title.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="002-parent-child\commands\query\has-parent-franchise-by-title.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="002-parent-child\commands\query\has-child-movie-by-title.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="002-parent-child\commands\query\has-parent-group-by-title.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="002-parent-child\data\film_to_franchise.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -90,11 +106,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="002-parent-child\commands\query\" />
-    <Folder Include="002-parent-child\commands\upsert\" />
   </ItemGroup>
 
 </Project>

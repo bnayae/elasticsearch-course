@@ -1,0 +1,15 @@
+{
+  "query": {
+    "has_child": {
+      "type": "film",
+      "query": {
+        "match": {
+          "title": "The Force Awakens"
+        }
+      }
+    }
+  },
+  "size": 5,
+  "from": 0,
+  "sort": []
+}
