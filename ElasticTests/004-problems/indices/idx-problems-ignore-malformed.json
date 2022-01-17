@@ -1,0 +1,24 @@
+{
+  "settings": {
+    "index.mapping.ignore_malformed": true
+  },
+  "mappings": {
+    "properties": {
+      "timestamp": {
+        "type": "date"
+      },
+      "service": {
+        "type": "keyword"
+      },
+      "host_ip": {
+        "type": "ip"
+      },
+      "port": {
+        "type": "integer"
+      },
+      "message": {
+        "type": "text"
+      }
+    }
+  }
+}

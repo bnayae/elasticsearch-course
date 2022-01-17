@@ -1,0 +1,10 @@
+{
+  "query": {
+    "query_string": {
+      "query": "Bionic Beaver"
+    }
+  },
+  "size": 1000,
+  "from": 0,
+  "sort": []
+}

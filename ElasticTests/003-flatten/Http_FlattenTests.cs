@@ -26,8 +26,6 @@ namespace ElasticTests
 {
     public class Http_FlattenTests : FlattenTestsBase
     {
-        private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
-        private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
         const string INDEX_FILE = "idx-flatten";
         const string INDEX_NAME = $"{INDEX_FILE }-v1";
         const string SEARCH = $"{INDEX_NAME}/_search";

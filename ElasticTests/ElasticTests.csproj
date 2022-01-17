@@ -20,6 +20,12 @@
     <None Remove="001-basics\data\tags.csv" />
     <None Remove="001-basics\indices\idx-movie-props.json" />
     <None Remove="001-basics\indices\idx-movie.json" />
+    <None Remove="004-problems\commands\query\casing-issue.json" />
+    <None Remove="004-problems\commands\query\exact-match.json" />
+    <None Remove="004-problems\commands\query\exact-query-string.json" />
+    <None Remove="004-problems\commands\query\exact-specific-prop.json" />
+    <None Remove="004-problems\commands\query\exact-term.json" />
+    <None Remove="004-problems\commands\query\partial.json" />
     <None Remove="003-flatten\commands\query\casing-issue.json" />
     <None Remove="003-flatten\commands\query\exact-match.json" />
     <None Remove="003-flatten\commands\query\exact-query-string.json" />
@@ -38,6 +44,12 @@
     <None Remove="002-parent-child\data\movies-series.txt" />
     <None Remove="002-parent-child\indices\film_to_franchise.json" />
     <None Remove="002-parent-child\indices\idx-movies-series.json" />
+    <None Remove="004-problems\data\port-none.json" />
+    <None Remove="004-problems\data\port-numeric-as-string.json" />
+    <None Remove="004-problems\data\port-numeric.json" />
+    <None Remove="004-problems\indices\idx-problems-ignore-malformed.json" />
+    <None Remove="004-problems\indices\idx-problems.json" />
+    <None Remove="004-problems\indices\ignore_malformed.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -75,6 +87,42 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="001-basics\indices\idx-movie.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\commands\query\casing-issue.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\commands\query\exact-match.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\commands\query\exact-query-string.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\commands\query\exact-specific-prop.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\commands\query\exact-term.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\commands\query\partial.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\data\port-none.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\data\port-numeric.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\data\port-numeric-as-string.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\indices\idx-problems-ignore-malformed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\indices\ignore_malformed.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\indices\idx-problems.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="003-flatten\commands\query\casing-issue.json">

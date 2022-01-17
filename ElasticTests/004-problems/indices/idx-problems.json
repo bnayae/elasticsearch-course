@@ -1,0 +1,21 @@
+{
+  "mappings": {
+    "properties": {
+      "timestamp": {
+        "type": "date"
+      },
+      "service": {
+        "type": "keyword"
+      },
+      "host_ip": {
+        "type": "ip"
+      },
+      "port": {
+        "type": "integer"
+      },
+      "message": {
+        "type": "text"
+      }
+    }
+  }
+}
