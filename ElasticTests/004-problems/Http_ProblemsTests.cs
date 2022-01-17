@@ -183,5 +183,19 @@ namespace ElasticTests
         }
 
         #endregion // Http_Insert_Set_Incompatible_Ignored_Test
+
+        #region Http_Insert_IncompatibleJsonMessage_Test
+
+        [Fact]
+        public async Task Http_Insert_IncompatibleJsonMessage_Test()
+        {
+            await CreateIgnoreMalformedIndexAsync();
+
+            // json is not compatible into a text field even when ignoring malformed
+            await Assert.ThrowsAsync<HttpRequestException>(async () =>
+                            await _http.PutFileAsync($"{INDEX_NAME}/_doc/1?refresh=wait_for", DATA_BASE_PATH, "json-message-issue.json"));
+        }
+
+        #endregion // Http_Insert_IncompatibleJsonMessage_Test
     }
 }

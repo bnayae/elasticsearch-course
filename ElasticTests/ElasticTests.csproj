@@ -44,6 +44,7 @@
     <None Remove="002-parent-child\data\movies-series.txt" />
     <None Remove="002-parent-child\indices\film_to_franchise.json" />
     <None Remove="002-parent-child\indices\idx-movies-series.json" />
+    <None Remove="004-problems\data\json-message-issue.json" />
     <None Remove="004-problems\data\port-none.json" />
     <None Remove="004-problems\data\port-numeric-as-string.json" />
     <None Remove="004-problems\data\port-numeric.json" />
@@ -105,6 +106,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="004-problems\commands\query\partial.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="004-problems\data\json-message-issue.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="004-problems\data\port-none.json">
