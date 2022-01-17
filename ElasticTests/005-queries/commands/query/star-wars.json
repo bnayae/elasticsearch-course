@@ -1,0 +1,8 @@
+{
+  "query": {
+    "match": { "title": "star wars" } 
+  },
+  "size": 30,
+  "from": 0,
+  "sort": []
+}

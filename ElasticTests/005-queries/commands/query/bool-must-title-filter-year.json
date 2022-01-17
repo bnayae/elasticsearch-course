@@ -1,0 +1,15 @@
+{
+  "query": {
+    "bool": {
+      "must": { "term": { "title": "trek" } },
+      "filter": {
+        "range": {
+          "year": { "gte": 2010 }
+        }
+      }
+    }
+  },
+  "size": 5,
+  "from": 0,
+  "sort": []
+}

@@ -96,7 +96,7 @@ namespace ElasticTests
 
         #region Http_BulkInsert_Movies_FromJson_Test
 
-        public async Task<JsonElement> Http_BulkInsert_Movies_FromJson(int limit = 0)
+        public async Task<JsonElement> HttpBulkInsertMoviesFromJsonAsync(int limit = 0)
         {
             await Http_Movie_Index();
 
@@ -111,7 +111,7 @@ namespace ElasticTests
         [Fact]
         public async Task Http_BulkInsert_Movies_FromJson_Test()
         {
-            JsonElement json = await Http_BulkInsert_Movies_FromJson();
+            JsonElement json = await HttpBulkInsertMoviesFromJsonAsync();
             _outputHelper.WriteLine(json.AsIndentString());
         }
 
@@ -257,7 +257,7 @@ namespace ElasticTests
         [Fact]
         public async Task Http_Query_ByFullText_Test()
         {
-            await Http_BulkInsert_Movies_FromJson();
+            await HttpBulkInsertMoviesFromJsonAsync();
 
             JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "title-story.json");
             _outputHelper.WriteLine(json.AsIndentString());
@@ -272,7 +272,7 @@ namespace ElasticTests
         [Fact]
         public async Task Http_Query_ByKeyword_Test()
         {
-            await Http_BulkInsert_Movies_FromJson(1000);
+            await HttpBulkInsertMoviesFromJsonAsync(1000);
 
             JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "genre-Sci-Fi.json");
             _outputHelper.WriteLine(json.AsIndentString());
@@ -287,7 +287,7 @@ namespace ElasticTests
         [Fact]
         public async Task Http_Query_ByKeyword_NotMutch_Test()
         {
-            await Http_BulkInsert_Movies_FromJson(1000);
+            await HttpBulkInsertMoviesFromJsonAsync(1000);
 
             JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "genre-Sci.json");
             _outputHelper.WriteLine(json.AsIndentString());

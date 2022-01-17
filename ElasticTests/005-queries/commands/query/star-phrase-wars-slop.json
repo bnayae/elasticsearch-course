@@ -1,0 +1,13 @@
+{
+  "query": {
+    "match_phrase": {
+      "title": {
+        "query": "story star",
+        "slop": 3
+      }
+    }
+  },
+  "size": 30,
+  "from": 0,
+  "sort": []
+}

@@ -8,6 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="005-queries\commands\query\bool-must-title-filter-year.json" />
+    <None Remove="005-queries\commands\query\star-phrase-wars-slop.json" />
+    <None Remove="005-queries\commands\query\star-phrase-wars.json" />
+    <None Remove="005-queries\commands\query\star-wars.json" />
+    <None Remove="005-queries\data\links.csv" />
+    <None Remove="005-queries\data\movies.csv" />
+    <None Remove="005-queries\data\ratings.csv" />
+    <None Remove="005-queries\data\tags.csv" />
     <None Remove="001-basics\commands\query\genre-Sci-Fi.json" />
     <None Remove="001-basics\commands\query\genre-Sci.json" />
     <None Remove="001-basics\commands\query\title-story.json" />
@@ -53,9 +61,37 @@
     <None Remove="004-problems\indices\idx-problems-ignore-malformed.json" />
     <None Remove="004-problems\indices\idx-problems.json" />
     <None Remove="004-problems\indices\ignore_malformed.json" />
+    <None Remove="005-queries\indices\idx-queries.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="005-queries\commands\query\star-phrase-wars-slop.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\commands\query\star-phrase-wars.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\commands\query\star-wars.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\commands\query\bool-must-title-filter-year.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\data\links.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\data\movies.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\data\ratings.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\data\tags.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\indices\idx-queries.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="001-basics\commands\query\genre-Sci-Fi.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -196,7 +232,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="NEST" Version="7.16.0" />
-    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.17" />
+    <PackageReference Include="Weknow.Text.Json.Extensions" Version="5.1.18" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
