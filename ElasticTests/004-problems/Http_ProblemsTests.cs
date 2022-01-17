@@ -197,5 +197,80 @@ namespace ElasticTests
         }
 
         #endregion // Http_Insert_IncompatibleJsonMessage_Test
+
+        #region Http_Insert_JsonAsObject_Test
+
+        [Fact]
+        public async Task Http_Insert_JsonAsObject_Test()
+        {
+            await CreateIndexAsync();
+
+            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1?refresh=wait_for", DATA_BASE_PATH, "json-as-object.json");
+            _outputHelper.WriteLine("-------------- Result -----------------");
+            _outputHelper.WriteLine(json.AsIndentString());
+
+            _outputHelper.WriteLine("-------------- Mapping -----------------");
+            JsonElement doc = await GetMappingAsync();
+
+            var data = await _http.GetJsonAsync($"{INDEX_NAME}/_doc/1");
+            _outputHelper.WriteLine("------------ Data -----------------");
+            _outputHelper.WriteLine(data.AsIndentString());
+        }
+
+        #endregion // Http_Insert_JsonAsObject_Test
+
+        #region Http_Insert_JsonCollision_Test
+
+        [Fact]
+        public async Task Http_Insert_JsonCollision_Test()
+        {
+            await CreateIgnoreMalformedIndexAsync();
+
+            // json mapping is tricky because it inferred from the json structure
+            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/1?refresh=wait_for", DATA_BASE_PATH, "json-as-object.json");
+            await Assert.ThrowsAsync<HttpRequestException>(async () =>
+                            await _http.PutFileAsync($"{INDEX_NAME}/_doc/1?refresh=wait_for", DATA_BASE_PATH, "json-as-object-collision.json"));
+        }
+
+        #endregion // Http_Insert_JsonCollision_Test
+
+        #region Http_HitLimit_Test
+
+
+        private JsonElement CreateMultiPropJson(int limit)
+        {
+            var buffer = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(buffer))
+            {
+                writer.WriteStartObject();
+
+                for (int i = 0; i < limit; i++)
+                {
+                    writer.WritePropertyName($"Prop{i}");
+                    writer.WriteNumberValue(i);
+                }
+
+                writer.WriteEndObject();
+            }
+            var reader = new Utf8JsonReader(buffer.WrittenSpan);
+            var doc = JsonDocument.ParseValue(ref reader);
+            return doc.RootElement;
+        }
+
+        [Fact]
+        public async Task Http_HitLimit_Test()
+        {
+            var json = CreateMultiPropJson(999);
+            var content = JsonContent.Create(json);
+            var res = await _http.PutAsync($"cross-limit/_doc/1?refresh=wait_for", content);
+            Assert.True(res.IsSuccessStatusCode);
+            // Limit to 1000 props by default
+            json = CreateMultiPropJson(1001);
+            content = JsonContent.Create(json);
+            res = await _http.PutAsync($"cross-limit/_doc/1?refresh=wait_for", content);
+            Assert.False(res.IsSuccessStatusCode);
+        }
+
+        #endregion // Http_HitLimit_Test
     }
 }

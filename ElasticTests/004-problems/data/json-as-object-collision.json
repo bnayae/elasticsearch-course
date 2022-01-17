@@ -1,0 +1,8 @@
+{
+	"timestamp": "2020-04-11T12:34:56.789Z",
+	"service": "ABC",
+	"host_ip": "10.0.2.15",
+	"port": 12345,
+	"message": "Received...",
+	"payload": { "data": { "received": { "collision": "with-other-json-format" } } }
+}
