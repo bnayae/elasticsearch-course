@@ -102,10 +102,10 @@ namespace ElasticTests
 
         #endregion // InsertLog1Async
 
-        #region Http_Insert_Log_Compatable_Test
+        #region Http_Insert_Log_MoreField_Test
 
         [Fact]
-        public async Task Http_Insert_Log_Compatable_Test()
+        public async Task Http_Insert_Log_MoreField_Test()
         {
             await Http_Flatten_Index();
 
@@ -123,7 +123,7 @@ namespace ElasticTests
             _outputHelper.WriteLine(data.AsIndentString());
         }
 
-        #endregion // Http_Insert_Log_Compatable_Test
+        #endregion // Http_Insert_Log_MoreField_Test
 
         #region InsertLogCompatableAsync
 
@@ -136,6 +136,20 @@ namespace ElasticTests
         }
 
         #endregion // InsertLogCompatableAsync
+
+        #region Http_Insert_Log_MoreMixedTypeFields_Test
+
+        [Fact]
+        public async Task Http_Insert_Log_MoreMixedTypeFields_Test()
+        {
+            await InsertLogCompatableAsync();
+
+            var json = await _http.PutFileAsync($"{INDEX_NAME}/_doc/3", DATA_BASE_PATH, "log-3.json");
+            _outputHelper.WriteLine("-------------- Result -----------------");
+            _outputHelper.WriteLine(json.AsIndentString());
+        }
+
+        #endregion // Http_Insert_Log_MoreMixedTypeFields_Test
 
         #region Http_Query_Exact_Term_Test
 
