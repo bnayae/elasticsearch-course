@@ -54,18 +54,21 @@ using Xunit.Abstractions;
 // * filter can be used inside query and vice-versa.
 
 
+// Indexing 2 mapping of a field enable sorting on text fields (raw)
+
+
 namespace ElasticTests
 {
-    public class Http_QueriesTests : QueriesTestsBase
+    public class Http_SortTests : SortTestsBase
     {
         private readonly Regex COMMA = new Regex(@"(\"".*)(,)(.*\"")");
         private readonly Regex RGX_YEAR = new Regex(@"\(\d*\)");
 
-        const string INDEX_FILE = "idx-queries";
+        const string INDEX_FILE = "idx-sort";
         const string INDEX_NAME = $"{INDEX_FILE}-v1";
         const string SEARCH = $"{INDEX_NAME}/_search";
 
-        public Http_QueriesTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
+        public Http_SortTests(ITestOutputHelper outputHelper) : base(outputHelper, INDEX_NAME)
         {
             _http.DeleteAsync(INDEX_NAME).Wait();
         }
@@ -186,22 +189,6 @@ namespace ElasticTests
 
         #endregion // CreateJsonArray
 
-        #region Http_Query_Bool_Must_Title_Filter_Year_Test
-
-        [Fact]
-        public async Task Http_Query_Bool_Must_Title_Filter_Year_Test()
-        {
-            await BulkInserAsync();
-
-            // must match title & filter
-            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "bool-must-title-filter-year.json");
-            _outputHelper.WriteLine(json.AsIndentString());
-            Assert.True(json.TryGetProperty(out var total, "hits", "total", "value"));
-            Assert.NotEqual(0, total.GetInt32());
-        }
-
-        #endregion // Http_Query_Bool_Must_Title_Filter_Year_Test
-
         #region Http_Query_Star_Wars_Test
 
         [Fact]
@@ -210,51 +197,23 @@ namespace ElasticTests
             await BulkInserAsync();
 
             // must match title & filter
-            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "star-wars.json");
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "sort-star.json");
             _outputHelper.WriteLine(json.AsIndentString());
             Assert.True(json.TryGetProperty(out var hits_group, "hits"));
             Assert.True(hits_group.TryGetProperty(out var total,  "total", "value"));
             Assert.NotEqual(0, total.GetInt32());
             Assert.True(hits_group.TryGetProperty(out JsonElement hits, "hits"));
             var titles = hits.DeepFilter((j, deep, spine)  => spine[^1] == "title" ? (true, TraverseFlow.Continue) : (false, TraverseFlow.Drill))
-                             .Select(m => m.GetString() ?? string.Empty);
-            Assert.Contains("Rogue One: A Star Wars Story", titles);
-            Assert.Contains("Star Wars: The Clone Wars", titles);
-            Assert.Contains("Bride Wars", titles);
-            Assert.Contains("Lone Star", titles);
+                             .Select(m => m.GetString() ?? string.Empty)
+                             .ToArray();
+            var sorted = titles.OrderBy(m => m).ToArray();
+            Assert.Equal(sorted.Length, titles.Length);
+            //for (int i = 0; i < sorted.Length; i++)
+            //{
+            //    Assert.Equal(sorted[i], titles[i]);
+            //}
         }
 
         #endregion // Http_Query_Star_Wars_Test
-
-        #region Http_Query_Star_Wars_Slop_Test
-
-        [Fact]
-        public async Task Http_Query_Star_Wars_Slop_Test()
-        {
-            await BulkInserAsync();
-
-            // must match title & filter
-            JsonElement json0 = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "star-phrase-wars.json");
-            _outputHelper.WriteLine(json0.AsIndentString());
-            Assert.True(json0.TryGetProperty(out var hits_group0, "hits"));
-            Assert.True(hits_group0.TryGetProperty(out var total0,  "total", "value"));
-            Assert.Equal(0, total0.GetInt32());
-
-            JsonElement json1 = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "star-phrase-wars-slop.json");
-            _outputHelper.WriteLine("------------- slop:1 -----------------");
-            _outputHelper.WriteLine(json1.AsIndentString());
-            Assert.True(json1.TryGetProperty(out var hits_group1, "hits"));
-            Assert.True(hits_group1.TryGetProperty(out var total1,  "total", "value"));
-            Assert.True(hits_group1.TryGetProperty(out var hits, "hits"));
-
-            Assert.True(hits_group1.TryGetProperty(out JsonElement hits1, "hits"));
-            var titles1 = hits1.DeepFilter((j, deep, spine) => spine[^1] == "title" ? (true, TraverseFlow.Continue) : (false, TraverseFlow.Drill))
-                             .Select(m => m.GetString() ?? string.Empty);
-            Assert.Contains("Solo: A Star Wars Story", titles1);
-            Assert.Contains("Empire of Dreams: The Story of the 'Star Wars' Trilogy", titles1); // analyzer should remove 'of the'
-        }
-
-        #endregion // Http_Query_StHttp_Query_Star_Wars_Slop_Testar_Wars_Test
-
     }
 }
