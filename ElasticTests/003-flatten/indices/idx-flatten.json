@@ -1,0 +1,9 @@
+{
+  "mappings": {
+    "properties": {
+      "host": {
+        "type": "flattened"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "query": {
+    "match": {
+      "host.osVersion": "Bionic Beaver"
+    }
+  },
+  "size": 5,
+  "from": 0,
+  "sort": []
+}

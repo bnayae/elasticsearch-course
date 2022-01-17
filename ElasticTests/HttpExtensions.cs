@@ -17,6 +17,8 @@ namespace ElasticTests
     /// </summary>
     public static class HttpExtensions
     {
+        private static string EnrichUri(string uri) => uri.IndexOf("?") == -1 ?  $"{uri}?error_trace=true" : $"{uri}&error_trace=true";
+
         /// <summary>
         /// Posts the text asynchronous.
         /// </summary>
@@ -29,6 +31,7 @@ namespace ElasticTests
             string p = Path.Combine(path);
             using var srm = File.OpenRead(p);
             var payload = await JsonDocument.ParseAsync(srm);
+            uri = EnrichUri(uri);   
             var res = await http.PutAsJsonAsync(uri, payload.RootElement);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("PUT failed");
             var json = await res.Content.ReadFromJsonAsync<JsonElement>();
@@ -48,6 +51,7 @@ namespace ElasticTests
             using var srm = File.OpenRead(p);
             var payload = await JsonDocument.ParseAsync(srm);
             Console.WriteLine(payload.AsIndentString());
+            uri = EnrichUri(uri);
             var res = await http.PostAsJsonAsync(uri, payload.RootElement);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("POST failed");
             var json = await res.Content.ReadFromJsonAsync<JsonElement>();
@@ -64,6 +68,7 @@ namespace ElasticTests
         public static async Task<JsonElement> PutTextAsync(this HttpClient http, string uri, string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            uri = EnrichUri(uri);
             var res = await http.PutAsync(uri, content);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("PUT failed");
             var json = await res.Content.ReadFromJsonAsync<JsonElement>();
@@ -80,6 +85,7 @@ namespace ElasticTests
         public static async Task<JsonElement> PostTextAsync(this HttpClient http, string uri, string payload)
         {
             var content = new StringContent(payload, Encoding.UTF8, "application/json");
+            uri = EnrichUri(uri);
             var res = await http.PostAsync(uri, content);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("POST failed");
             string json = await res.Content.ReadAsStringAsync();
@@ -107,6 +113,7 @@ namespace ElasticTests
         /// <exception cref="System.Exception">POST failed</exception>
         public static async Task<JsonElement> DeleteJsonAsync(this HttpClient http, string uri)
         {
+            uri = EnrichUri(uri);
             var res = await http.DeleteAsync(uri);
             if (!res.IsSuccessStatusCode) throw new HttpRequestException("Get Json failed");
             var json = await res.Content.ReadFromJsonAsync<JsonElement>();

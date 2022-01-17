@@ -20,6 +20,15 @@
     <None Remove="001-basics\data\tags.csv" />
     <None Remove="001-basics\indices\idx-movie-props.json" />
     <None Remove="001-basics\indices\idx-movie.json" />
+    <None Remove="003-flatten\commands\query\casing-issue.json" />
+    <None Remove="003-flatten\commands\query\exact-match.json" />
+    <None Remove="003-flatten\commands\query\exact-query-string.json" />
+    <None Remove="003-flatten\commands\query\exact-specific-prop.json" />
+    <None Remove="003-flatten\commands\query\exact-term.json" />
+    <None Remove="003-flatten\commands\query\partial.json" />
+    <None Remove="003-flatten\data\log-1.json" />
+    <None Remove="003-flatten\data\log-2.json" />
+    <None Remove="003-flatten\indices\idx-flatten.json" />
     <None Remove="002-parent-child\commands\query\has-child-film-by-title.json" />
     <None Remove="002-parent-child\commands\query\has-child-movie-by-title.json" />
     <None Remove="002-parent-child\commands\query\has-parent-franchise-by-title.json" />
@@ -65,6 +74,33 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="001-basics\indices\idx-movie.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\commands\query\casing-issue.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\commands\query\exact-specific-prop.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\commands\query\exact-query-string.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\commands\query\exact-term.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\commands\query\partial.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\commands\query\exact-match.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\data\log-1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\data\log-2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="003-flatten\indices\idx-flatten.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="002-parent-child\commands\query\has-child-film-by-title.json">

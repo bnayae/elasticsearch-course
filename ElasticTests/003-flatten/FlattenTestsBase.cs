@@ -19,10 +19,10 @@ using Xunit.Abstractions;
 
 namespace ElasticTests
 {
-    public class ParentChildTestsBase
+    public class FlattenTestsBase
     {
         const string ENDPOINT = "http://localhost:9200/";
-        protected const string BASE_PATH = "002-parent-child";
+        protected const string BASE_PATH = "003-flatten";
         protected static readonly string DATA_BASE_PATH = Path.Combine(BASE_PATH, "data");
         protected static readonly string INDICES_BASE_PATH = Path.Combine(BASE_PATH, "indices");
         protected static readonly string QUERY_BASE_PATH = Path.Combine(BASE_PATH, "commands", "query");
@@ -30,7 +30,7 @@ namespace ElasticTests
 
         protected readonly ITestOutputHelper _outputHelper;
 
-        public ParentChildTestsBase(ITestOutputHelper outputHelper, string defaultIndex)
+        public FlattenTestsBase(ITestOutputHelper outputHelper, string defaultIndex)
         {
             _http = new HttpClient
             {
@@ -51,6 +51,5 @@ namespace ElasticTests
         protected readonly IElasticClient _nest;
 
         protected readonly IElasticLowLevelClient _low;
-
     }
 }
