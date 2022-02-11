@@ -115,10 +115,10 @@ namespace ElasticTests
 
         #endregion // BulkInserAsync
 
-        #region Http_Query_Star_Wars_Test
+        #region Http_Sort_Title_Raw_Test
 
         [Fact]
-        public async Task Http_Query_Star_Wars_Test()
+        public async Task Http_Sort_Title_Raw_Test()
         {
             await BulkInserAsync();
 
@@ -132,14 +132,16 @@ namespace ElasticTests
             var titles = hits.DeepFilter((j, deep, spine)  => spine[^1] == "title" ? (true, TraverseFlow.Continue) : (false, TraverseFlow.Drill))
                              .Select(m => m.GetString() ?? string.Empty)
                              .ToArray();
+            titles = titles.Take(20).ToArray();
             var sorted = titles.OrderBy(m => m).ToArray();
             Assert.Equal(sorted.Length, titles.Length);
-            //for (int i = 0; i < sorted.Length; i++)
-            //{
-            //    Assert.Equal(sorted[i], titles[i]);
-            //}
+            for (int i = 0; i < sorted.Length; i++)
+            {
+                Assert.Equal(sorted[i], titles[i]);
+            }
+            Assert.True(sorted.SequenceEqual(titles));
         }
 
-        #endregion // Http_Query_Star_Wars_Test
+        #endregion // Http_Sort_Title_Raw_Test
     }
 }
