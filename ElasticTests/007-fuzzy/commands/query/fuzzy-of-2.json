@@ -1,0 +1,13 @@
+{
+  "query": {
+    "match": {
+      "title": {
+        "query": "starr warz",
+        "fuzziness": 2
+      }
+    }
+  },
+  "size": 30,
+  "from": 0,
+  "sort": []
+}

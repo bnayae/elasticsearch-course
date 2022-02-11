@@ -1,0 +1,13 @@
+{
+  "mappings": {
+    "properties": {
+      "movieId": { "type": "integer" },
+      "title": {
+        "type": "text",
+        "analyzer": "simple"
+      },
+      "year": { "type": "integer" },
+      "genres": { "type": "keyword" }
+    }
+  }
+}

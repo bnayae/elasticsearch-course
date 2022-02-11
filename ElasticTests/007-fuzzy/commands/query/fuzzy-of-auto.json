@@ -1,0 +1,14 @@
+{
+  "query": {
+    "match": {
+      "title": {
+        "query": "starr warz",
+        "fuzziness": "AUTO",
+        "max_expansions": 10
+      }
+    }
+  },
+  "size": 30,
+  "from": 0,
+  "sort": []
+}
