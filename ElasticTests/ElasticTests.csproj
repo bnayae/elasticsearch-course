@@ -9,6 +9,9 @@
 
   <ItemGroup>
     <None Remove="005-queries\commands\query\bool-complex-filter.json" />
+    <None Remove="005-queries\commands\query\star-phrase-wars-slop.json" />
+    <None Remove="005-queries\commands\query\star-phrase-wars.json" />
+    <None Remove="005-queries\commands\query\star-wars.json" />
     <None Remove="006-sort\commands\query\sort-star.json" />
     <None Remove="006-sort\data\links.csv" />
     <None Remove="006-sort\data\movies.csv" />
@@ -70,6 +73,15 @@
 
   <ItemGroup>
     <Content Include="005-queries\commands\query\bool-complex-filter.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\commands\query\star-phrase-wars-slop.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\commands\query\star-phrase-wars.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="005-queries\commands\query\star-wars.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="006-sort\commands\query\sort-star.json">

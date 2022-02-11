@@ -3,11 +3,14 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static ElasticTests.Helper;
 
 using Nest;
 
 using Xunit;
 using Xunit.Abstractions;
+
+using static ElasticTests.Helper;
 
 // Credit:
 // https://www.udemy.com/course/elasticsearch-7-and-elastic-stack/learn/lecture/14728774
@@ -85,7 +88,8 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            string payload = await PrepareBulkPayload();
+            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
+            string payload = await PrepareBulkPayload(path, INDEX_NAME);
 
             // ?refresh=wait_for: will forcibly refresh your index to make the recently indexed document available for search. see: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html
             JsonElement json = await _http.PutTextAsync($"{INDEX_NAME}/_bulk?refresh=wait_for", payload);
@@ -100,7 +104,8 @@ namespace ElasticTests
         {
             await Http_Movie_Index();
 
-            JsonElement jsonPayload = await CreateJsonArray(limit);
+            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
+            JsonElement jsonPayload = await CreateJsonArray(path, limit);
             string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id");
 
             // ?refresh=wait_for: will forcibly refresh your index to make the recently indexed document available for search. see: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html
@@ -321,134 +326,6 @@ namespace ElasticTests
         #endregion // Http_NEST_Query_ByTitle_Test
 
         #region Helpers
-
-        #region PrepareBulkPayload
-
-        private async Task<string> PrepareBulkPayload(int limit = 0)
-        {
-            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
-            using var reader = new StreamReader(path);
-            await reader.ReadLineAsync();
-
-            var builder = new StringBuilder();
-            limit = limit <= 0 ? int.MaxValue : limit;
-            int i = 0;
-            while (!reader.EndOfStream)
-            {
-                if (i++ > limit) break;
-
-                string? line = await reader.ReadLineAsync();
-                if (string.IsNullOrEmpty(line))
-                    continue;
-
-                string fline;
-                string tmp = line;
-                do
-                {
-                    fline = COMMA.Replace(tmp, "$1~$3");
-                    if (tmp == fline) break;
-                    tmp = fline;
-                } while (true);
-
-                var lineArray = fline.Split(",");
-                string id = lineArray[0];
-                string genresRaw = lineArray[2];
-                var genresArray = genresRaw.Split("|").Select(x => $"\"{x}\"");
-                string genres = $"{string.Join(",", genresArray)}";
-                string fullTitle = lineArray[1];
-                string title = RGX_YEAR.Replace(fullTitle, "").Replace("~", ",");
-                var year = RGX_YEAR.Match(fullTitle).Value;
-                if (year.Length > 2)
-                    year = year.Substring(1, year.Length - 2);
-                else
-                    year = "0";
-
-                builder.AppendLine($@"{{ ""create"" : {{ ""_index"" : ""{INDEX_NAME}"", ""_id"" : ""{id}""  }} }}");
-                builder.AppendLine($@"{{ ""id"" : ""{id}"", ""title"" : ""{title.Trim()}"", ""year"" : ""{year}"",""genres"" : [{genres}] }}");
-            }
-
-            return builder.ToString();
-
-        }
-
-        #endregion // PrepareBulkPayload
-
-        #region CreateJsonArray
-
-        private async Task<JsonElement> CreateJsonArray(int limit = 0)
-        {
-            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
-            using var reader = new StreamReader(path);
-            await reader.ReadLineAsync();
-
-            var buffer = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(buffer))
-            {
-                writer.WriteStartArray();
-                limit = limit <= 0 ? int.MaxValue : limit;
-                int i = 0;
-                while (!reader.EndOfStream)
-                {
-                    if (i++ > limit) break;
-
-                    string? line = await reader.ReadLineAsync();
-                    if (string.IsNullOrEmpty(line))
-                        continue;
-
-                    string fline;
-                    string tmp = line;
-                    do
-                    {
-                        fline = COMMA.Replace(tmp, "$1~$3");
-                        if (tmp == fline) break;
-                        tmp = fline;
-                    } while (true);
-
-                    var lineArray = fline.Split(",");
-                    string id = lineArray[0];
-                    string genresRaw = lineArray[2];
-                    var genresArray = genresRaw.Split("|"); 
-                    string genres = $"{string.Join(",", genresArray)}";
-                    string fullTitle = lineArray[1];
-                    string title = RGX_YEAR
-                                        .Replace(fullTitle, "");
-                    var year = RGX_YEAR.Match(fullTitle).Value;
-                    if (year.Length > 2)
-                        year = year.Substring(1, year.Length - 2);
-                    else
-                        year = "0";
-
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("id");
-                    writer.WriteNumberValue(int.Parse(id));
-
-                    writer.WritePropertyName("title");
-                    writer.WriteStringValue(title.Trim());
-
-                    writer.WritePropertyName("year");
-                    writer.WriteNumberValue(int.Parse(year));
-
-                    writer.WritePropertyName("genres");
-                    writer.WriteStartArray();
-                    foreach (var g in genresArray)
-                    {
-                        writer.WriteStringValue(g);
-                    }
-                    writer.WriteEndArray();
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndArray();
-
-                writer.Flush();
-                var doc = JsonDocument.Parse(buffer.WrittenSpan.ToArray());
-                _outputHelper.WriteLine(doc.AsIndentString());
-                return doc.RootElement;
-            }
-        }
-
-        #endregion // CreateJsonArray
 
         #region Dispose Pattern
 

@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using static ElasticTests.Helper;
 
 using Nest;
 
@@ -100,7 +101,8 @@ namespace ElasticTests
         {
             await CreateIndexAsync();
 
-            JsonElement jsonPayload = await CreateJsonArray(limit);
+            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
+            JsonElement jsonPayload = await CreateJsonArray(path, limit);
             string payload = jsonPayload.ToBulkInsertString(INDEX_NAME, "id");
 
             // ?refresh=wait_for: will forcibly refresh your index to make the recently indexed document available for search. see: https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-refresh.html
@@ -109,82 +111,6 @@ namespace ElasticTests
         }
 
         #endregion // BulkInserAsync
-
-        #region CreateJsonArray
-
-        private async Task<JsonElement> CreateJsonArray(int limit = 0)
-        {
-            string path = Path.Combine(DATA_BASE_PATH, "movies.csv");
-            using var reader = new StreamReader(path);
-            await reader.ReadLineAsync();
-
-            var buffer = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(buffer))
-            {
-                writer.WriteStartArray();
-                limit = limit <= 0 ? int.MaxValue : limit;
-                int i = 0;
-                while (!reader.EndOfStream)
-                {
-                    if (i++ > limit) break;
-
-                    string? line = await reader.ReadLineAsync();
-                    if (string.IsNullOrEmpty(line))
-                        continue;
-
-                    string fline;
-                    string tmp = line;
-                    do
-                    {
-                        fline = COMMA.Replace(tmp, "$1~$3");
-                        if (tmp == fline) break;
-                        tmp = fline;
-                    } while (true);
-
-                    var lineArray = fline.Split(",");
-                    string id = lineArray[0];
-                    string genresRaw = lineArray[2];
-                    var genresArray = genresRaw.Split("|");
-                    string genres = $"{string.Join(",", genresArray)}";
-                    string fullTitle = lineArray[1];
-                    string title = RGX_YEAR
-                                        .Replace(fullTitle, "");
-                    var year = RGX_YEAR.Match(fullTitle).Value;
-                    if (year.Length > 2)
-                        year = year.Substring(1, year.Length - 2);
-                    else
-                        year = "0";
-
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("id");
-                    writer.WriteNumberValue(int.Parse(id));
-
-                    writer.WritePropertyName("title");
-                    writer.WriteStringValue(title.Trim());
-
-                    writer.WritePropertyName("year");
-                    writer.WriteNumberValue(int.Parse(year));
-
-                    writer.WritePropertyName("genres");
-                    writer.WriteStartArray();
-                    foreach (var g in genresArray)
-                    {
-                        writer.WriteStringValue(g);
-                    }
-                    writer.WriteEndArray();
-
-                    writer.WriteEndObject();
-                }
-
-                writer.WriteEndArray();
-
-                writer.Flush();
-                var doc = JsonDocument.Parse(buffer.WrittenSpan.ToArray());
-                return doc.RootElement;
-            }
-        }
-
-        #endregion // CreateJsonArray
 
         #region Http_Query_Bool_Must_Title_Filter_Year_Test
 
