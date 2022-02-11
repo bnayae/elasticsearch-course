@@ -256,5 +256,33 @@ namespace ElasticTests
 
         #endregion // Http_Query_StHttp_Query_Star_Wars_Slop_Testar_Wars_Test
 
+        #region Http_Query_Complex_Filter_Test
+
+        [Fact]
+        public async Task Http_Query_Complex_Filter_Test()
+        {
+            await BulkInserAsync();
+            
+
+            // must match title & filter
+            JsonElement json0 = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "bool-complex-filter.json");
+            _outputHelper.WriteLine(json0.AsIndentString());
+            Assert.True(json0.TryGetProperty(out var hits_group0, "hits"));
+            Assert.True(hits_group0.TryGetProperty(out var total0, "total", "value"));
+            Assert.NotEqual(0, total0.GetInt32());
+            Assert.True(hits_group0.TryGetProperty(out var hits, "hits"));
+            Assert.DoesNotContain(hits.EnumerateArray().Select(m =>
+            {
+                Assert.True(m.TryGetProperty(out var src, "_source"));
+                return src;
+            }), src =>
+            {
+                Assert.True(src.TryGetProperty(out var title, "title"));
+                return title.GetString()?.IndexOf("Thief") != -1;
+            });
+        }
+
+        #endregion // Http_Query_StHttp_Query_Complex_Filter_Testar_Wars_Test
+
     }
 }

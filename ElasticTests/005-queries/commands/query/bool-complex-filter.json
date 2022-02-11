@@ -1,0 +1,19 @@
+{
+  "query": {
+    "bool": {
+      "must": { "match": { "genres": "Fantasy" } },
+      "must_not": { "match": { "title": "Thief" } },
+      "filter": {
+        "range": {
+          "year": {
+            "gte": 2010,
+            "lt": 2015
+          }
+        }
+      }
+    }
+  },
+  "size": 5,
+  "from": 0,
+  "sort": []
+}
