@@ -6,7 +6,14 @@
         "type": "text",
         "analyzer": "simple"
       },
-      "year": { "type": "integer" },
+      "year": {
+        "type": "integer",
+        "fields": {
+          "raw": {
+            "type": "text"
+          }
+        }
+      },
       "genres": { "type": "keyword" }
     }
   }

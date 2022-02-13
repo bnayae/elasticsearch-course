@@ -18,6 +18,7 @@ using Xunit.Abstractions;
 // Elasticsearch.NET: https://www.elastic.co/guide/en/elasticsearch/client/net-api/current/elasticsearch-net-getting-started.html
 
 // docker run --rm -it --name elasticsearch -e "discovery.type=single-node" -p 9200:9200 -p 9300:9300 docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+// docker run --rm -it --name elasticsearch -e "discovery.type=single-node" -e "xpack.security.enabled=false" -p 9200:9200 -p 9300:9300 docker.elastic.co/elasticsearch/elasticsearch:8.0.0
 
 // Fuzzy: https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html
 
@@ -140,5 +141,67 @@ namespace ElasticTests
 
         #endregion // Http_Fuzzy_Auto_Test
 
+        #region Http_Prefix_Test
+
+        [Fact]
+        public async Task Http_Prefix_Test()
+        {
+            await BulkInserAsync();
+
+            // must match title & filter
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "prefix.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var hits_group, "hits"));
+            Assert.True(hits_group.TryGetProperty(out var total,  "total", "value"));
+            Assert.NotEqual(0, total.GetInt32());
+            Assert.True(hits_group.TryGetProperty(out JsonElement hits, "hits"));
+            var titles = hits.DeepFilter((j, deep, spine)  => spine[^1] == "title" ? (true, TraverseFlow.Continue) : (false, TraverseFlow.Drill))
+                             .Select(m => m.GetString());
+            Assert.True(titles.All(t => t.Split(" ").Any(w => w.StartsWith("gene", StringComparison.OrdinalIgnoreCase))));
+        }
+
+        #endregion // Http_Prefix_Test
+
+        #region Http_Prefix_Year_Raw_Test
+
+        [Fact]
+        public async Task Http_Prefix_Year_Raw_Test()
+        {
+            await BulkInserAsync();
+
+            // must match title & filter
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "prefix-year-raw.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var hits_group, "hits"));
+            Assert.True(hits_group.TryGetProperty(out var total,  "total", "value"));
+            Assert.NotEqual(0, total.GetInt32());
+            Assert.True(hits_group.TryGetProperty(out JsonElement hits, "hits"));
+            var years = hits.DeepFilter((j, deep, spine)  => spine[^1] == "year" ? (true, TraverseFlow.Continue) : (false, TraverseFlow.Drill))
+                             .Select(m => m.GetInt32());
+            Assert.True(years.All(y => y >= 1980 && y < 1990));
+        }
+
+        #endregion // Http_Prefix_Year_Raw_Test
+
+        #region Http_Wildcard_Test
+
+        [Fact]
+        public async Task Http_Wildcard_Test()
+        {
+            await BulkInserAsync();
+
+            // must match title & filter
+            JsonElement json = await _http.PostFileAsync(SEARCH, QUERY_BASE_PATH, "wildcard.json");
+            _outputHelper.WriteLine(json.AsIndentString());
+            Assert.True(json.TryGetProperty(out var hits_group, "hits"));
+            Assert.True(hits_group.TryGetProperty(out var total,  "total", "value"));
+            Assert.NotEqual(0, total.GetInt32());
+            Assert.True(hits_group.TryGetProperty(out JsonElement hits, "hits"));
+            var titles = hits.DeepFilter((j, deep, spine)  => spine[^1] == "title" ? (true, TraverseFlow.Continue) : (false, TraverseFlow.Drill))
+                             .Select(m => m.GetString());
+            Assert.True(titles.All(t => t.Split(" ").Any(w => w.StartsWith("gene", StringComparison.OrdinalIgnoreCase))));
+        }
+
+        #endregion // Http_Wildcard_Test
     }
 }

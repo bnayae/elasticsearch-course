@@ -11,6 +11,9 @@
     <None Remove="007-fuzzy\commands\query\fuzzy-of-2.json" />
     <None Remove="007-fuzzy\commands\query\fuzzy-of-auto-short.json" />
     <None Remove="007-fuzzy\commands\query\fuzzy-of-auto.json" />
+    <None Remove="007-fuzzy\commands\query\prefix-year-raw.json" />
+    <None Remove="007-fuzzy\commands\query\prefix.json" />
+    <None Remove="007-fuzzy\commands\query\wildcard.json" />
     <None Remove="007-fuzzy\data\links.csv" />
     <None Remove="007-fuzzy\data\movies.csv" />
     <None Remove="007-fuzzy\data\ratings.csv" />
@@ -80,6 +83,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="007-fuzzy\commands\query\prefix-year-raw.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="007-fuzzy\commands\query\wildcard.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="007-fuzzy\commands\query\prefix.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="007-fuzzy\commands\query\fuzzy-of-auto-short.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

@@ -1,0 +1,12 @@
+{
+  "query": {
+    "prefix": {
+      "year.raw": {
+        "value": "198"
+      }
+    }
+  },
+  "size": 30,
+  "from": 0,
+  "sort": []
+}
